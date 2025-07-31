@@ -1,0 +1,6 @@
+a2a==0.44
+agno==1.7.6
+fastapi==0.116.0
+openai==1.93.3
+a2a-sdk==0.2.16
+uvicorn==0.35.0

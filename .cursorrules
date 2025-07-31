@@ -1,0 +1,225 @@
+# AI-Agents 平台
+
+一个强大的AI代理框架，用于构建、管理和部署智能代理应用。
+
+## 项目简介
+
+AI-Agents是一个综合性的代理开发平台，提供了完整的工具链和框架，支持创建单一代理和多代理团队，实现智能对话、任务处理和代理间协作。该平台集成了多种先进AI模型，并提供了丰富的工具集，使开发者能够快速构建复杂的AI应用。
+
+## 技术栈
+
+- **后端框架**：FastAPI
+- **AI模型**：支持OpenAI、Anthropic Claude、Google Gemini、DeepSeek等多种模型
+- **数据库**：MySQL、MongoDB、PostgreSQL、向量数据库(Milvus, Qdrant, pgvector)
+- **通信协议**：gRPC, REST, WebSocket
+- **前端**：React组件库
+- **部署**：Docker容器化
+- **工具集成**：支持网络搜索、文档处理、代码执行等多种工具
+
+## 项目结构
+
+```
+ai-agents/
+├── a2a-python/             # 代理间通信(Agent-to-Agent)库
+│   ├── src/                # 源代码
+│   │   ├── a2a/            # 核心库实现
+│   │   │   ├── auth/       # 认证模块
+│   │   │   ├── client/     # 客户端实现
+│   │   │   ├── grpc/       # gRPC协议定义
+│   │   │   ├── server/     # 服务器实现
+│   │   │   └── utils/      # 工具函数
+│   └── tests/              # 测试用例
+├── agent_api/              # 代理API服务层
+│   ├── migrations/         # 数据库迁移
+│   ├── models/             # 数据模型
+│   ├── playground/         # 代理测试环境
+│   └── routers/            # API路由
+│       ├── _async/         # 异步API路由
+│       └── sync/           # 同步API路由
+├── agent-ui/               # 前端用户界面
+│   └── src/                # 源代码
+│       ├── api/            # API客户端
+│       ├── app/            # 应用核心
+│       ├── components/     # UI组件
+│       │   ├── playground/ # 代理测试界面
+│       │   └── ui/         # 通用UI组件
+│       └── hooks/          # React钩子
+├── agno-a2a/               # 轻量级A2A客户端
+├── ai_agent/               # 核心代理实现库
+│   ├── agent/              # 代理模型定义
+│   ├── api/                # API接口
+│   ├── cli/                # 命令行工具
+│   ├── document/           # 文档处理
+│   ├── embedder/           # 文本嵌入
+│   ├── eval/               # 评估工具
+│   ├── memory/             # 记忆管理
+│   ├── models/             # AI模型适配器
+│   ├── prompts/            # 提示模板
+│   ├── reasoning/          # 推理引擎
+│   ├── storage/            # 存储接口
+│   ├── team/               # 多代理团队
+│   ├── tools/              # 工具集成
+│   ├── utils/              # 工具函数
+│   ├── vectordb/           # 向量数据库
+│   └── workspace/          # 工作空间
+├── docker/                 # Docker配置
+└── examples/               # 示例代码
+```
+
+## 核心功能
+
+### 1. 智能代理
+
+- **单一代理**：支持创建独立的AI代理，具备对话理解和任务执行能力
+- **代理团队**：支持多个代理协同工作，实现复杂任务分解和协作
+- **记忆系统**：代理具备长期和短期记忆能力，支持上下文理解
+- **工具使用**：代理可以使用各种工具执行实际任务，如网络搜索、数据处理等
+
+### 2. 模型集成
+
+- **多模型支持**：集成OpenAI、Claude、Gemini、DeepSeek等多种大型语言模型
+- **模型切换**：可根据任务需求灵活切换不同的基础模型
+
+### 3. 通信机制
+
+- **A2A协议**：专为代理间通信设计的协议，支持结构化消息传递
+- **gRPC接口**：高性能的代理通信接口，适用于分布式环境
+- **REST API**：提供RESTful接口，方便集成到现有系统
+
+### 4. 存储与记忆
+
+- **多种数据库支持**：支持关系型数据库和向量数据库
+- **结构化记忆**：支持不同类型的记忆存储和检索
+- **向量搜索**：使用语义相似性搜索相关信息
+
+### 5. 工具集成
+
+- **网络搜索**：集成搜索引擎，获取实时信息
+- **文档处理**：支持PDF、文本、网页等多种文档格式的处理
+- **外部API调用**：支持调用外部API执行特定功能
+
+### 6. 可视化界面
+
+- **代理测试环境**：提供交互式界面测试和调试代理功能
+- **会话管理**：支持多会话管理，查看历史对话
+- **工具调用可视化**：展示代理工具调用过程和结果
+
+## 快速开始
+
+### 环境配置
+
+1. 复制环境变量模板
+```bash
+cp env.example .env
+```
+
+2. 配置数据库和API密钥
+```
+# 编辑.env文件设置数据库连接和API密钥
+```
+
+3. 创建虚拟环境并安装依赖
+```bash
+conda create -n ai python=3.10
+conda activate ai
+pip install -r requirements.txt
+```
+
+### 初始化数据库
+
+```bash
+make migrate
+```
+
+### 启动服务
+
+```bash
+# 启动主服务
+python main.py
+
+# 启动单一代理服务
+python agent_main.py
+```
+
+### 使用代理客户端
+
+```python
+from a2a.client import A2AClient
+import httpx
+
+async def main():
+    async with httpx.AsyncClient() as client:
+        a2a_client = await A2AClient.get_client_from_agent_card_url(
+            client, "http://localhost:9999"
+        )
+        # 向代理发送消息
+        response = await a2a_client.send_message(request)
+        print(response)
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
+```
+
+## 数据库迁移
+
+项目使用Alembic管理数据库结构的版本控制。常用命令：
+
+```bash
+# 执行所有待应用的迁移
+make migrate
+
+# 查看迁移状态
+make migrate-status
+
+# 创建新的迁移文件
+make migrate-create name="添加用户表"
+```
+
+## 开发指南
+
+开发的执行环境 conda env=agent
+
+### 创建新代理
+
+```python
+from ai_agent.agent.agent import Agent
+from ai_agent.models.openai import OpenAIChat
+
+# 创建代理实例
+agent = Agent(
+    name="My Agent",
+    role="Assistant",
+    model=OpenAIChat(id="gpt-4o"),
+    tools=[...],  # 添加所需工具
+    instructions="Your instructions here",
+)
+```
+
+### 创建代理团队
+
+```python
+from ai_agent.team import Team
+
+# 创建团队实例
+team = Team(
+    name="My Team",
+    members=[agent1, agent2],  # 添加团队成员
+    model=OpenAIChat(id="gpt-4o"),
+    instructions=["Team instructions"],
+)
+```
+
+## 贡献指南
+
+欢迎贡献代码、报告问题或提出新功能建议。请遵循以下步骤：
+
+1. Fork本项目
+2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
+3. 提交更改 (`git commit -m 'Add some amazing feature'`)
+4. 推送到分支 (`git push origin feature/amazing-feature`)
+5. 创建Pull Request
+
+## 许可证
+
+[此处填写项目许可证信息]

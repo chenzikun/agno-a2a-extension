@@ -1,0 +1,62 @@
+# 包含README文件
+include README.md
+include README-migration.md
+include 基于agno的AI-Agents框架.md
+
+# 包含依赖文件
+include requirements.txt
+include requirements-dev.txt
+
+# 包含配置文件
+include *.ini
+include *.cfg
+include *.yaml
+include *.yml
+include *.json
+
+# 包含agents包
+recursive-include agents *.py
+
+# 包含核心模块
+recursive-include sdk *.py
+recursive-include apis *.py
+recursive-include servers *.py
+recursive-include agno_ext *.py
+
+# 包含示例
+recursive-include examples *.py *.md *.txt
+
+# 包含测试
+recursive-include tests *.py *.md *.txt
+
+# 包含迁移文件
+recursive-include apis/migrations *.py *.sql
+
+# 包含前端资源（如果需要）
+recursive-include agent-ui/src *.tsx *.ts *.css *.json
+recursive-include web/src *.vue *.ts *.css *.json
+
+# 包含Docker文件
+include docker/*.dockerfile
+include docker/*.yml
+include docker/*.yaml
+
+# 包含脚本
+include scripts/*.sh
+include scripts/*.py
+
+# 排除不需要的文件
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.pyd
+global-exclude __pycache__
+global-exclude *.so
+global-exclude .DS_Store
+global-exclude .git*
+global-exclude .env
+global-exclude .venv
+global-exclude venv
+global-exclude node_modules
+global-exclude .pytest_cache
+global-exclude .coverage
+global-exclude *.log 
