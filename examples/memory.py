@@ -7,7 +7,7 @@ from agno.models.deepseek import DeepSeek
 from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.yfinance import YFinanceTools
 from agno.team import Team
-from agents.agno_ext.memory import MySqlMemoryDb
+from agents.agno_ext.memory.mysql import MySqlMemoryDb
 from agents.agno_ext.storage.mysql import MySqlStorage
 
 userid = "chenzikun@autel.com"
