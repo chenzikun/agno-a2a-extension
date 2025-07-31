@@ -1,0 +1,50 @@
+# Alembic数据库迁移
+
+## 简介
+
+这是基于Alembic的数据库迁移系统，用于管理数据库结构的版本控制。
+
+## 使用方法
+
+使用包装器脚本执行迁移命令:
+
+```bash
+python -m agent_api.migrations.alembic_wrapper [命令]
+```
+
+或者直接使用原生Alembic命令:
+
+```bash
+alembic [命令]
+```
+
+## 常用命令
+
+1. 查看当前迁移状态:
+   ```
+   python -m agent_api.migrations.alembic_wrapper status
+   ```
+
+2. 执行迁移:
+   ```
+   python -m agent_api.migrations.alembic_wrapper migrate
+   ```
+
+3. 回滚迁移:
+   ```
+   python -m agent_api.migrations.alembic_wrapper rollback
+   ```
+
+4. 创建新的迁移文件:
+   ```
+   python -m agent_api.migrations.alembic_wrapper create "迁移描述"
+   ```
+
+5. 自动生成迁移文件:
+   ```
+   python -m agent_api.migrations.alembic_wrapper autogenerate "迁移描述"
+   ```
+
+## 迁移文件目录
+
+迁移文件存放在 `versions` 目录下，每个文件对应一个版本的数据库结构变更。 

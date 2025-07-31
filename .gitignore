@@ -1,2 +1,7 @@
 .a2a-python
 agno
+agent-ui/.idea/
+agent-ui/.next/
+agent-ui/.vscode/
+agent-ui/node_modules/
+web
