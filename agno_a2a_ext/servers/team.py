@@ -14,305 +14,247 @@ from agno_a2a_ext.servers.base import BaseServer
 
 
 class TeamExecutorWrapper(AgentExecutor):
-    """将Team包装为A2A执行器"""
+    """Wrap Team as an A2A executor"""
     
     def __init__(self, team: Team):
         """
-        初始化执行器
+        Initialize executor
         
         Args:
-            team: 要包装的Team实例
+            team: Team instance to wrap
         """
         self.team = team
     
     async def execute(self, context, event_queue):
         """
-        执行Team并将结果放入事件队列
+        Execute Team and put results into event queue
         
         Args:
-            context: 请求上下文
-            event_queue: 事件队列
+            context: Request context
+            event_queue: Event queue
         """
-
-        
         try:
-            # 提取消息和会话ID
+            # Extract message and session ID
             message = ""
             session_id = None
             
-            # 详细记录context结构，帮助调试
-            print(f"DEBUG TeamExecutorWrapper: 收到请求，context类型={type(context).__name__}")
+            # Log context structure for debugging
+            print(f"DEBUG TeamExecutorWrapper: Received request, context type={type(context).__name__}")
             
-            # 尝试直接从context中获取更多信息
+            # Try to get more info directly from context
             if hasattr(context, "__dict__"):
-                print(f"DEBUG TeamExecutorWrapper: context属性={list(context.__dict__.keys())}")
+                print(f"DEBUG TeamExecutorWrapper: context attributes={list(context.__dict__.keys())}")
             
-            # 如果context是RequestContext类型，尝试更详细地分析
+            # If context is RequestContext, analyze in detail
             if type(context).__name__ == "RequestContext":
-                print("DEBUG TeamExecutorWrapper: 处理RequestContext类型")
+                print("DEBUG TeamExecutorWrapper: Handling RequestContext type")
                 
-                # 尝试从context.message获取信息
+                # Try to get info from context.message
                 if hasattr(context, "message"):
                     message_obj = context.message
-                    print(f"DEBUG TeamExecutorWrapper: context.message类型={type(message_obj).__name__}")
+                    print(f"DEBUG TeamExecutorWrapper: context.message type={type(message_obj).__name__}")
                     
                     if hasattr(message_obj, "__dict__"):
-                        print(f"DEBUG TeamExecutorWrapper: context.message属性={list(message_obj.__dict__.keys())}")
+                        print(f"DEBUG TeamExecutorWrapper: context.message attributes={list(message_obj.__dict__.keys())}")
                     
-                    # 打印message的字符串表示
                     print(f"DEBUG TeamExecutorWrapper: context.message={context.message}")
                     
-                    # 如果message有parts属性
+                    # If message has parts attribute
                     if hasattr(message_obj, "parts") and message_obj.parts:
-                        print(f"DEBUG TeamExecutorWrapper: context.message.parts数量={len(message_obj.parts)}")
+                        print(f"DEBUG TeamExecutorWrapper: context.message.parts count={len(message_obj.parts)}")
                         
-                        # 遍历parts
+                        # Iterate parts
                         for i, part in enumerate(message_obj.parts):
-                            print(f"DEBUG TeamExecutorWrapper: part[{i}]类型={type(part).__name__}")
+                            print(f"DEBUG TeamExecutorWrapper: part[{i}] type={type(part).__name__}")
                             
-                            # 打印part的所有属性
+                            # Print all attributes of part
                             if hasattr(part, "__dict__"):
-                                print(f"DEBUG TeamExecutorWrapper: part[{i}]属性={list(part.__dict__.keys())}")
+                                print(f"DEBUG TeamExecutorWrapper: part[{i}] attributes={list(part.__dict__.keys())}")
                             
-                            # 尝试从part.root.text提取
+                            # Try to extract from part.root.text
                             if hasattr(part, "root") and part.root:
-                                print(f"DEBUG TeamExecutorWrapper: part[{i}].root类型={type(part.root).__name__}")
-                                
-                                # 打印root的所有属性
+                                print(f"DEBUG TeamExecutorWrapper: part[{i}].root type={type(part.root).__name__}")
                                 if hasattr(part.root, "__dict__"):
-                                    print(f"DEBUG TeamExecutorWrapper: part[{i}].root属性={list(part.root.__dict__.keys())}")
-                                
-                                # 提取text
+                                    print(f"DEBUG TeamExecutorWrapper: part[{i}].root attributes={list(part.root.__dict__.keys())}")
                                 if hasattr(part.root, "text"):
                                     part_text = part.root.text
                                     message += part_text
-                                    print(f"DEBUG TeamExecutorWrapper: 从part[{i}].root.text提取: '{part_text}'")
-                            
-                            # 尝试从part.text提取
+                                    print(f"DEBUG TeamExecutorWrapper: Extracted from part[{i}].root.text: '{part_text}'")
+                            # Try to extract from part.text
                             elif hasattr(part, "text"):
                                 part_text = part.text
                                 message += part_text
-                                print(f"DEBUG TeamExecutorWrapper: 从part[{i}].text提取: '{part_text}'")
-                            
-                            # 如果都没有，尝试打印part的完整结构
+                                print(f"DEBUG TeamExecutorWrapper: Extracted from part[{i}].text: '{part_text}'")
+                            # If neither, try to print full structure
                             else:
                                 try:
-                                    print(f"DEBUG TeamExecutorWrapper: part[{i}]结构={json.dumps(part, default=str)}")
+                                    print(f"DEBUG TeamExecutorWrapper: part[{i}] structure={json.dumps(part, default=str)}")
                                 except:
-                                    print(f"DEBUG TeamExecutorWrapper: part[{i}]无法序列化为JSON")
-            
-            # 如果从context.message无法提取，尝试从request.params中获取
+                                    print(f"DEBUG TeamExecutorWrapper: part[{i}] cannot be serialized to JSON")
+            # If not extracted from context.message, try from request.params
             if not message and hasattr(context, "request") and context.request:
-                print(f"DEBUG TeamExecutorWrapper: context.request类型={type(context.request).__name__}")
-                
-                # 打印request的所有属性
+                print(f"DEBUG TeamExecutorWrapper: context.request type={type(context.request).__name__}")
                 if hasattr(context.request, "__dict__"):
-                    print(f"DEBUG TeamExecutorWrapper: context.request属性={list(context.request.__dict__.keys())}")
-                
-                # 尝试从params中提取
+                    print(f"DEBUG TeamExecutorWrapper: context.request attributes={list(context.request.__dict__.keys())}")
                 if hasattr(context.request, "params") and context.request.params:
                     params = context.request.params
-                    print(f"DEBUG TeamExecutorWrapper: params类型={type(params).__name__}")
-                    
-                    # 打印params的所有属性
+                    print(f"DEBUG TeamExecutorWrapper: params type={type(params).__name__}")
                     if hasattr(params, "__dict__"):
-                        print(f"DEBUG TeamExecutorWrapper: params属性={list(params.__dict__.keys())}")
-                    
-                    # 提取message
+                        print(f"DEBUG TeamExecutorWrapper: params attributes={list(params.__dict__.keys())}")
+                    # Extract message
                     if hasattr(params, "message") and params.message:
                         message_obj = params.message
-                        print(f"DEBUG TeamExecutorWrapper: params.message类型={type(message_obj).__name__}")
-                        
-                        # 打印message_obj的所有属性
+                        print(f"DEBUG TeamExecutorWrapper: params.message type={type(message_obj).__name__}")
                         if hasattr(message_obj, "__dict__"):
-                            print(f"DEBUG TeamExecutorWrapper: params.message属性={list(message_obj.__dict__.keys())}")
-                        
-                        # 如果message_obj是字符串，直接使用
+                            print(f"DEBUG TeamExecutorWrapper: params.message attributes={list(message_obj.__dict__.keys())}")
                         if isinstance(message_obj, str):
                             message = message_obj
-                            print(f"DEBUG TeamExecutorWrapper: 从params.message提取字符串: '{message}'")
-                        
-                        # 如果message_obj有parts属性
+                            print(f"DEBUG TeamExecutorWrapper: Extracted string from params.message: '{message}'")
                         elif hasattr(message_obj, "parts") and message_obj.parts:
-                            print(f"DEBUG TeamExecutorWrapper: params.message.parts数量={len(message_obj.parts)}")
-                            
-                            # 遍历parts
+                            print(f"DEBUG TeamExecutorWrapper: params.message.parts count={len(message_obj.parts)}")
                             for i, part in enumerate(message_obj.parts):
-                                print(f"DEBUG TeamExecutorWrapper: params.message.part[{i}]类型={type(part).__name__}")
-                                
-                                # 尝试从part.root.text提取
+                                print(f"DEBUG TeamExecutorWrapper: params.message.part[{i}] type={type(part).__name__}")
                                 if hasattr(part, "root") and part.root:
-                                    print(f"DEBUG TeamExecutorWrapper: params.message.part[{i}].root类型={type(part.root).__name__}")
-                                    
+                                    print(f"DEBUG TeamExecutorWrapper: params.message.part[{i}].root type={type(part.root).__name__}")
                                     if hasattr(part.root, "text"):
                                         message += part.root.text
-                                        print(f"DEBUG TeamExecutorWrapper: 从params.message.part[{i}].root.text提取: '{part.root.text}'")
-                                
-                                # 尝试从part.text提取
+                                        print(f"DEBUG TeamExecutorWrapper: Extracted from params.message.part[{i}].root.text: '{part.root.text}'")
                                 elif hasattr(part, "text"):
                                     message += part.text
-                                    print(f"DEBUG TeamExecutorWrapper: 从params.message.part[{i}].text提取: '{part.text}'")
-                    
-                    # 提取会话ID
+                                    print(f"DEBUG TeamExecutorWrapper: Extracted from params.message.part[{i}].text: '{part.text}'")
+                    # Extract session_id
                     if hasattr(params, "session_id"):
                         session_id = params.session_id
-                        print(f"DEBUG TeamExecutorWrapper: 从params提取session_id: {session_id}")
-            
-            # 如果没有提取到消息，使用默认消息
+                        print(f"DEBUG TeamExecutorWrapper: Extracted session_id from params: {session_id}")
+            # If no message extracted, use default
             if not message:
-                message = "收到空消息"
-                print(f"警告: 无法提取消息内容，使用默认消息: '{message}'")
-                
-            # 如果没有提取到会话ID，生成一个新的
+                message = "Received empty message"
+                print(f"WARNING: Could not extract message content, using default: '{message}'")
+            # If no session_id, generate a new one
             if not session_id:
                 session_id = str(uuid4())
-                
-            print(f"DEBUG TeamExecutorWrapper: 提取的消息='{message}', 会话ID={session_id}")
-            print(f"DEBUG TeamExecutorWrapper: 准备调用Team.arun，Team类型: {type(self.team).__name__}, 消息: {message[:50]}...")
-                    
+            print(f"DEBUG TeamExecutorWrapper: Extracted message='{message}', session_id={session_id}")
+            print(f"DEBUG TeamExecutorWrapper: Preparing to call Team.arun, Team type: {type(self.team).__name__}, message: {message[:50]}...")
             try:
-                # 修改：为团队创建一个安全的运行环境
-                # 在调用 Team.arun 之前，先保存原始的 _update_team_media 方法
-
+                # Patch: create a safe run environment for the team
+                # Save the original _update_team_media method before calling Team.arun
                 original_update_team_media = Team._update_team_media
-                
-                # 创建一个安全的 _update_team_media 方法，处理 run_response 为 None 的情况
+                # Create a safe _update_team_media method to handle None run_response
                 def safe_update_team_media(self, run_response):
                     if run_response is None:
-                        print("警告: 跳过 None run_response 的媒体更新")
+                        print("WARNING: Skipping media update for None run_response")
                         return
                     return original_update_team_media(self, run_response)
-                
-                # 临时替换方法
+                # Temporarily replace the method
                 Team._update_team_media = safe_update_team_media
-                
-                # 同样，保存原始的 add_member_run 方法
+                # Also save the original add_member_run method
                 original_add_member_run = TeamRunResponse.add_member_run
-                
-                # 创建一个安全的 add_member_run 方法
+                # Create a safe add_member_run method
                 def safe_add_member_run(self, run_response):
                     if run_response is None:
-                        print("警告: 跳过添加 None run_response")
+                        print("WARNING: Skipping add_member_run for None run_response")
                         return
                     return original_add_member_run(self, run_response)
-                
-                # 临时替换方法
+                # Temporarily replace the method
                 TeamRunResponse.add_member_run = safe_add_member_run
-                
-                # 调用Team.arun获取响应
+                # Call Team.arun to get response
                 run_response = await self.team.arun(
                     message=message,
                     session_id=session_id,
                     stream=False
                 )
-                
-                # 恢复原始方法
+                # Restore original methods
                 Team._update_team_media = original_update_team_media
                 TeamRunResponse.add_member_run = original_add_member_run
-                
-                # 检查run_response是否为None
+                # Check if run_response is None
                 if run_response is None:
-                    print(f"警告: Team.arun返回了None，创建一个空的响应")
+                    print(f"WARNING: Team.arun returned None, creating an empty response")
                     run_response = TeamRunResponse(
-                        content="收到空响应",
+                        content="Received empty response",
                         content_type="str",
                         team_id=self.team.team_id if hasattr(self.team, 'team_id') else None,
-                        team_name=self.team.name if hasattr(self.team, 'name') else "未知团队",
+                        team_name=self.team.name if hasattr(self.team, 'name') else "Unknown Team",
                         session_id=session_id,
                         status=RunStatus.completed
                     )
-                
-                # 提取响应内容
+                # Extract response content
                 content = ""
                 if hasattr(run_response, "content"):
                     content = run_response.content
-                
-                print(f"DEBUG TeamExecutorWrapper: Team.arun返回内容: '{content}'")
-                
-                # 创建A2A响应消息
+                print(f"DEBUG TeamExecutorWrapper: Team.arun returned content: '{content}'")
+                # Create A2A response message
                 response_message = Message(
                     messageId=str(uuid4()),
                     role=Role.agent,
-                    parts=[Part(text=content or "无响应内容")]
+                    parts=[Part(text=content or "No response content")]
                 )
-                
-                # 将响应放入事件队列
+                # Put response into event queue
                 if hasattr(event_queue, "enqueue_event"):
                     await event_queue.enqueue_event(response_message)
-                    print(f"DEBUG TeamExecutorWrapper: 使用enqueue_event入队响应消息")
+                    print(f"DEBUG TeamExecutorWrapper: Used enqueue_event to enqueue response message")
                 elif hasattr(event_queue, "put"):
                     await event_queue.put(response_message)
-                    print(f"DEBUG TeamExecutorWrapper: 使用put入队响应消息")
+                    print(f"DEBUG TeamExecutorWrapper: Used put to enqueue response message")
                 else:
-                    print(f"警告: 未知的事件队列类型: {type(event_queue).__name__}")
-                
-                print(f"DEBUG TeamExecutorWrapper: 响应处理完成")
-                
+                    print(f"WARNING: Unknown event queue type: {type(event_queue).__name__}")
+                print(f"DEBUG TeamExecutorWrapper: Response handling complete")
             except Exception as e:
-                print(f"DEBUG TeamExecutorWrapper: Team.arun调用出现异常: {str(e)}")
+                print(f"DEBUG TeamExecutorWrapper: Exception during Team.arun call: {str(e)}")
                 traceback.print_exc()
-                
-                # 创建错误响应消息
+                # Create error response message
                 error_message = Message(
                     messageId=str(uuid4()),
                     role=Role.agent,
-                    parts=[Part(text=f"执行错误: {str(e)}")]
+                    parts=[Part(text=f"Execution error: {str(e)}")]
                 )
-                
-                # 将错误响应放入事件队列
+                # Put error response into event queue
                 if hasattr(event_queue, "enqueue_event"):
                     await event_queue.enqueue_event(error_message)
                 elif hasattr(event_queue, "put"):
                     await event_queue.put(error_message)
                 else:
-                    print(f"警告: 未知的事件队列类型: {type(event_queue).__name__}")
-                
+                    print(f"WARNING: Unknown event queue type: {type(event_queue).__name__}")
         except Exception as e:
-            print(f"DEBUG TeamExecutorWrapper: 执行过程出现异常: {str(e)}")
+            print(f"DEBUG TeamExecutorWrapper: Exception during execution: {str(e)}")
             traceback.print_exc()
-            
-            # 创建错误响应消息
+            # Create error response message
             error_message = Message(
                 messageId=str(uuid4()),
                 role=Role.agent,
-                parts=[Part(text=f"执行错误: {str(e)}")]
+                parts=[Part(text=f"Execution error: {str(e)}")]
             )
-            
-            # 将错误响应放入事件队列
+            # Put error response into event queue
             if hasattr(event_queue, "enqueue_event"):
                 await event_queue.enqueue_event(error_message)
             elif hasattr(event_queue, "put"):
                 await event_queue.put(error_message)
             else:
-                print(f"警告: 未知的事件队列类型: {type(event_queue).__name__}")
-    
+                print(f"WARNING: Unknown event queue type: {type(event_queue).__name__}")
     async def cancel(self, context, event_queue):
         """
-        取消Team执行
+        Cancel Team execution
         
         Args:
-            context: 请求上下文
-            event_queue: 事件队列
+            context: Request context
+            event_queue: Event queue
         """
-
-        # 创建取消消息
+        # Create cancel message
         cancel_message = Message(
             messageId=str(uuid4()),
             role=Role.agent,
-            parts=[Part(text="团队任务已被用户取消")]
+            parts=[Part(text="Team task has been cancelled by user")]
         )
-        
-        # 将取消消息放入事件队列
+        # Put cancel message into event queue
         if hasattr(event_queue, "enqueue_event"):
             await event_queue.enqueue_event(cancel_message)
         elif hasattr(event_queue, "put"):
             await event_queue.put(cancel_message)
         else:
-            print(f"警告: 未知的事件队列类型: {type(event_queue).__name__}")
+            print(f"WARNING: Unknown event queue type: {type(event_queue).__name__}")
 
 
 class TeamServer(BaseServer):
-    """纯A2A协议的Team服务"""
+    """Pure A2A protocol Team service"""
     
     def __init__(
         self,
@@ -321,12 +263,12 @@ class TeamServer(BaseServer):
         port: int = 9000
     ):
         """
-        初始化TeamServer
+        Initialize TeamServer
         
         Args:
-            team: 要服务的Team实例
-            host: 服务器主机
-            port: 服务器端口
+            team: Team instance to serve
+            host: Server host
+            port: Server port
         """
         super().__init__(
             host=host,
@@ -338,29 +280,27 @@ class TeamServer(BaseServer):
     
     def create_agent_card(self) -> AgentCard:
         """
-        创建AgentCard
+        Create AgentCard
         
         Returns:
-            AgentCard: 包含Team信息的卡片
+            AgentCard: Card containing Team information
         """
-        # 获取Team信息
+        # Get Team information
         name = self.team.name or "Unknown Team"
         description = self.team.description or "A team of agent"
-        
-        # 获取成员信息
+        # Get member information
         member_skills = []
         if hasattr(self.team, "members"):
             for i, member in enumerate(self.team.members):
                 member_name = getattr(member, "name", f"Member {i}")
                 member_role = getattr(member, "role", "")
                 member_skills.append({
-                    "id": f"member-{i}",  # 添加必需的id字段
+                    "id": f"member-{i}",  # Required id field
                     "name": member_name,
                     "description": member_role or f"Team member {i+1}",
-                    "tags": ["team-member"]  # 添加必需的tags字段
+                    "tags": ["team-member"]  # Required tags field
                 })
-        
-        # 如果没有成员技能，添加默认技能
+        # If no member skills, add default
         if not member_skills:
             member_skills = [{
                 "id": "coordination",
@@ -368,8 +308,7 @@ class TeamServer(BaseServer):
                 "description": "Team coordination",
                 "tags": ["coordination"]
             }]
-        
-        # 创建AgentCard
+        # Create AgentCard
         return AgentCard(
             name=name,
             description=description,
@@ -386,65 +325,58 @@ class TeamServer(BaseServer):
     
     def create_executor(self) -> AgentExecutor:
         """
-        创建执行器
+        Create executor
         
         Returns:
-            AgentExecutor: 包装了Team的执行器
+            AgentExecutor: Executor wrapping the Team
         """
         return TeamExecutorWrapper(self.team)
 
-
 async def main():
-    """命令行入口点"""
+    """Command line entry point"""
     import argparse
     import asyncio
     from agno.agent.agent import Agent
     from agno.team.team import Team
     
-    parser = argparse.ArgumentParser(description="启动A2A Team服务器")
-    parser.add_argument("--host", default="0.0.0.0", help="服务器主机地址")
-    parser.add_argument("--port", type=int, default=9000, help="服务器端口")
-    parser.add_argument("--name", default="Test Team", help="Team名称")
-    parser.add_argument("--description", default="A team of agents", help="Team描述")
+    parser = argparse.ArgumentParser(description="Start A2A Team server")
+    parser.add_argument("--host", default="0.0.0.0", help="Server host address")
+    parser.add_argument("--port", type=int, default=9000, help="Server port")
+    parser.add_argument("--name", default="Test Team", help="Team name")
+    parser.add_argument("--description", default="A team of agents", help="Team description")
     
     args = parser.parse_args()
     
-    # 创建测试Agent
+    # Create test Agents
     agent1 = Agent(
         name="Assistant 1",
         role="Assistant",
-        instructions="我是第一个助手，负责回答问题。"
+        instructions="I am the first assistant, responsible for answering questions."
     )
-    
     agent2 = Agent(
         name="Assistant 2", 
         role="Assistant",
-        instructions="我是第二个助手，负责补充信息。"
+        instructions="I am the second assistant, responsible for providing additional information."
     )
-    
-    # 创建Team
+    # Create Team
     team = Team(
         name=args.name,
         description=args.description,
         members=[agent1, agent2],
-        instructions="我们是一个团队，协同工作来帮助用户。"
+        instructions="We are a team working together to help users."
     )
-    
-    # 创建并启动服务器
+    # Create and start the server
     server = TeamServer(team, host=args.host, port=args.port)
-    
     try:
         await server.start()
-        print(f"Team服务器已启动: http://{args.host}:{args.port}")
-        
-        # 保持服务器运行
+        print(f"Team server started: http://{args.host}:{args.port}")
+        # Keep the server running
         while True:
             await asyncio.sleep(1)
     except KeyboardInterrupt:
-        print("\n正在停止服务器...")
+        print("\nStopping server...")
         await server.stop()
-        print("服务器已停止")
-
+        print("Server stopped")
 
 if __name__ == "__main__":
     asyncio.run(main())

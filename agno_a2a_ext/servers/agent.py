@@ -10,261 +10,261 @@ from agno_a2a_ext.servers.base import BaseServer
 
 
 class AgentExecutorWrapper(AgentExecutor):
-    """将Agent包装为A2A执行器"""
+    """Wrapper to convert Agent to A2A executor"""
 
     def __init__(self, agent: Agent):
         """
-        初始化执行器
+        Initialize executor
         
         Args:
-            agent: 要包装的Agent实例
+            agent: Agent instance to wrap
         """
         self.agent = agent
 
     async def execute(self, context, event_queue):
         """
-        执行Agent并将结果放入事件队列
+        Execute Agent and put results into event queue
         
         Args:
-            context: 请求上下文
-            event_queue: 事件队列
+            context: Request context
+            event_queue: Event queue
         """
 
         try:
-            # 从请求中提取消息
+            # Extract message from request
             message = ""
             session_id = None
-            stream = True  # 默认启用流式响应
+            stream = True  # Enable streaming by default
 
-            # 尝试从context中获取信息，处理不同的结构
+            # Try to get information from context, handle different structures
             if hasattr(context, "request") and context.request:
-                print(f"DEBUG AgentExecutorWrapper: 从context.request获取信息, request类型={type(context.request)}")
+                print(f"DEBUG AgentExecutorWrapper: Getting info from context.request, request type={type(context.request)}")
                 if hasattr(context.request, "message") and context.request.message:
-                    print(f"DEBUG AgentExecutorWrapper: 找到message, 类型={type(context.request.message)}")
-                    print(f"DEBUG AgentExecutorWrapper: message属性={dir(context.request.message)}")
-                    # 从消息部分提取文本
+                    print(f"DEBUG AgentExecutorWrapper: Found message, type={type(context.request.message)}")
+                    print(f"DEBUG AgentExecutorWrapper: message attributes={dir(context.request.message)}")
+                    # Extract text from message parts
                     if hasattr(context.request.message, "parts"):
-                        print(f"DEBUG AgentExecutorWrapper: 找到parts, 数量={len(context.request.message.parts)}")
+                        print(f"DEBUG AgentExecutorWrapper: Found parts, count={len(context.request.message.parts)}")
                         for i, part in enumerate(context.request.message.parts):
-                            print(f"DEBUG AgentExecutorWrapper: 处理part[{i}], 类型={type(part)}, 属性={dir(part)}")
+                            print(f"DEBUG AgentExecutorWrapper: Processing part[{i}], type={type(part)}, attributes={dir(part)}")
                             if hasattr(part, "root") and hasattr(part.root, "text"):
-                                print(f"DEBUG AgentExecutorWrapper: 从part.root.text获取文本: '{part.root.text}'")
+                                print(f"DEBUG AgentExecutorWrapper: Getting text from part.root.text: '{part.root.text}'")
                                 message += part.root.text
                             elif hasattr(part, "text"):
-                                print(f"DEBUG AgentExecutorWrapper: 从part.text获取文本: '{part.text}'")
+                                print(f"DEBUG AgentExecutorWrapper: Getting text from part.text: '{part.text}'")
                                 message += part.text
                             else:
-                                print(f"DEBUG AgentExecutorWrapper: 无法从part获取文本")
+                                print(f"DEBUG AgentExecutorWrapper: Cannot get text from part")
                 if hasattr(context.request, "configuration") and context.request.configuration:
-                    print(f"DEBUG AgentExecutorWrapper: 找到configuration")
+                    print(f"DEBUG AgentExecutorWrapper: Found configuration")
                     session_id = context.request.configuration.sessionId
                     print(f"DEBUG AgentExecutorWrapper: session_id = {session_id}")
             elif hasattr(context, "params") and context.params:
-                print(f"DEBUG AgentExecutorWrapper: 从context.params获取信息, params类型={type(context.params)}")
-                # 尝试从params获取信息
+                print(f"DEBUG AgentExecutorWrapper: Getting info from context.params, params type={type(context.params)}")
+                # Try to get information from params
                 if hasattr(context.params, "message") and context.params.message:
-                    print(f"DEBUG AgentExecutorWrapper: 找到message, 类型={type(context.params.message)}")
-                    # 从消息部分提取文本
+                    print(f"DEBUG AgentExecutorWrapper: Found message, type={type(context.params.message)}")
+                    # Extract text from message parts
                     if hasattr(context.params.message, "parts"):
-                        print(f"DEBUG AgentExecutorWrapper: 找到parts, 数量={len(context.params.message.parts)}")
+                        print(f"DEBUG AgentExecutorWrapper: Found parts, count={len(context.params.message.parts)}")
                         for i, part in enumerate(context.params.message.parts):
-                            print(f"DEBUG AgentExecutorWrapper: 处理part[{i}], 类型={type(part)}, 属性={dir(part)}")
+                            print(f"DEBUG AgentExecutorWrapper: Processing part[{i}], type={type(part)}, attributes={dir(part)}")
                             if hasattr(part, "root") and hasattr(part.root, "text"):
-                                print(f"DEBUG AgentExecutorWrapper: 从part.root.text获取文本: '{part.root.text}'")
+                                print(f"DEBUG AgentExecutorWrapper: Getting text from part.root.text: '{part.root.text}'")
                                 message += part.root.text
                             elif hasattr(part, "text"):
-                                print(f"DEBUG AgentExecutorWrapper: 从part.text获取文本: '{part.text}'")
+                                print(f"DEBUG AgentExecutorWrapper: Getting text from part.text: '{part.text}'")
                                 message += part.text
                             else:
-                                print(f"DEBUG AgentExecutorWrapper: 无法从part获取文本")
+                                print(f"DEBUG AgentExecutorWrapper: Cannot get text from part")
                 if hasattr(context.params, "configuration") and context.params.configuration:
-                    print(f"DEBUG AgentExecutorWrapper: 找到configuration")
+                    print(f"DEBUG AgentExecutorWrapper: Found configuration")
                     session_id = context.params.configuration.sessionId
                     print(f"DEBUG AgentExecutorWrapper: session_id = {session_id}")
 
-            # 尝试直接从context提取消息
+            # Try to extract message directly from context
             if not message and hasattr(context, "message"):
-                print(f"DEBUG AgentExecutorWrapper: 尝试从context.message获取信息, 类型={type(context.message)}")
+                print(f"DEBUG AgentExecutorWrapper: Trying to get info from context.message, type={type(context.message)}")
                 if context.message:
                     print(f"DEBUG AgentExecutorWrapper: context.message={context.message}")
                     if isinstance(context.message, str):
                         message = context.message
-                        print(f"DEBUG AgentExecutorWrapper: 直接获取字符串消息: '{message}'")
+                        print(f"DEBUG AgentExecutorWrapper: Directly getting string message: '{message}'")
                     elif hasattr(context.message, "parts") and context.message.parts:
                         print(
-                            f"DEBUG AgentExecutorWrapper: 从context.message.parts提取, 数量={len(context.message.parts)}")
+                            f"DEBUG AgentExecutorWrapper: Extracting from context.message.parts, count={len(context.message.parts)}")
                         for i, part in enumerate(context.message.parts):
                             if hasattr(part, "root") and hasattr(part.root, "text"):
                                 message += part.root.text
                                 print(
-                                    f"DEBUG AgentExecutorWrapper: 从message.parts[{i}].root.text提取: '{part.root.text}'")
+                                    f"DEBUG AgentExecutorWrapper: Extracting from message.parts[{i}].root.text: '{part.root.text}'")
 
-            # 如果没有提取到消息，尝试其他方法
+            # If no message extracted, try alternative methods
             if not message:
-                print(f"DEBUG AgentExecutorWrapper: 主要方法未提取到消息，尝试备用方法")
+                print(f"DEBUG AgentExecutorWrapper: Primary methods failed to extract message, trying fallback methods")
                 if hasattr(context, "request") and hasattr(context.request, "text"):
-                    print(f"DEBUG AgentExecutorWrapper: 从context.request.text获取文本")
+                    print(f"DEBUG AgentExecutorWrapper: Getting text from context.request.text")
                     message = context.request.text
                 elif hasattr(context, "params") and hasattr(context.params, "text"):
-                    print(f"DEBUG AgentExecutorWrapper: 从context.params.text获取文本")
+                    print(f"DEBUG AgentExecutorWrapper: Getting text from context.params.text")
                     message = context.params.text
 
-                # 尝试获取用户输入
+                # Try to get user input
                 elif hasattr(context, "get_user_input") and callable(context.get_user_input):
                     try:
-                        print(f"DEBUG AgentExecutorWrapper: 尝试调用context.get_user_input()")
+                        print(f"DEBUG AgentExecutorWrapper: Trying to call context.get_user_input()")
                         user_input = context.get_user_input()
-                        print(f"DEBUG AgentExecutorWrapper: 获取到用户输入: {user_input}")
+                        print(f"DEBUG AgentExecutorWrapper: Got user input: {user_input}")
                         if user_input:
                             message = user_input
                     except Exception as e:
-                        print(f"DEBUG AgentExecutorWrapper: 调用get_user_input失败: {str(e)}")
+                        print(f"DEBUG AgentExecutorWrapper: Failed to call get_user_input: {str(e)}")
 
-                # 尝试从call_context获取
+                # Try to get from call_context
                 elif hasattr(context, "call_context") and context.call_context:
-                    print(f"DEBUG AgentExecutorWrapper: 检查call_context, 类型={type(context.call_context)}")
-                    print(f"DEBUG AgentExecutorWrapper: call_context属性={dir(context.call_context)}")
+                    print(f"DEBUG AgentExecutorWrapper: Checking call_context, type={type(context.call_context)}")
+                    print(f"DEBUG AgentExecutorWrapper: call_context attributes={dir(context.call_context)}")
                     if hasattr(context.call_context, "request") and context.call_context.request:
                         if hasattr(context.call_context.request, "params") and hasattr(
                                 context.call_context.request.params, "message"):
                             user_msg = context.call_context.request.params.message
                             print(
-                                f"DEBUG AgentExecutorWrapper: 从call_context.request.params.message获取, 类型={type(user_msg)}")
+                                f"DEBUG AgentExecutorWrapper: Getting from call_context.request.params.message, type={type(user_msg)}")
                             if hasattr(user_msg, "parts") and user_msg.parts:
                                 for part in user_msg.parts:
                                     if hasattr(part, "root") and hasattr(part.root, "text"):
                                         message += part.root.text
-                                        print(f"DEBUG AgentExecutorWrapper: 从call_context提取消息: '{part.root.text}'")
+                                        print(f"DEBUG AgentExecutorWrapper: Extracted message from call_context: '{part.root.text}'")
 
-                # 输出context的完整内容以便进一步分析
-                print(f"DEBUG AgentExecutorWrapper: 完整context内容:")
+                # Output complete context content for further analysis
+                print(f"DEBUG AgentExecutorWrapper: Complete context content:")
                 for key in dir(context):
                     if not key.startswith("_") and key not in ["call_context", "get_user_input"]:
                         try:
                             value = getattr(context, key)
                             print(f"DEBUG AgentExecutorWrapper: context.{key} = {value}")
                         except Exception as e:
-                            print(f"DEBUG AgentExecutorWrapper: 无法获取context.{key}: {e}")
+                            print(f"DEBUG AgentExecutorWrapper: Cannot get context.{key}: {e}")
 
-            # 执行Agent逻辑
+            # Execute Agent logic
             if message:
-                print(f"DEBUG AgentExecutorWrapper: 成功提取到消息: '{message}'")
+                print(f"DEBUG AgentExecutorWrapper: Successfully extracted message: '{message}'")
                 try:
-                    # 使用Agent执行消息
+                    # Use Agent to execute message
                     try:
                         print(
-                            f"DEBUG AgentExecutorWrapper: 准备调用Agent.arun，Agent类型: {type(self.agent).__name__}, 消息: {message[:50]}...")
-                        print(f"DEBUG AgentExecutorWrapper: Agent对象信息: 属性={dir(self.agent)}")
+                            f"DEBUG AgentExecutorWrapper: Preparing to call Agent.arun, Agent type: {type(self.agent).__name__}, message: {message[:50]}...")
+                        print(f"DEBUG AgentExecutorWrapper: Agent object info: attributes={dir(self.agent)}")
                         print(
-                            f"DEBUG AgentExecutorWrapper: 调用参数: message={message}, session_id={session_id}, stream=False")
+                            f"DEBUG AgentExecutorWrapper: Call parameters: message={message}, session_id={session_id}, stream=False")
 
                         run_response = await self.agent.arun(
                             message=message,
                             session_id=session_id,
                             stream=False
                         )
-                        print(f"DEBUG AgentExecutorWrapper: Agent.arun调用成功")
+                        print(f"DEBUG AgentExecutorWrapper: Agent.arun call successful")
 
-                        # 从Agent响应中提取内容
+                        # Extract content from Agent response
                         print(
-                            f"DEBUG AgentExecutorWrapper: run_response类型={type(run_response)}, 属性={dir(run_response)}")
+                            f"DEBUG AgentExecutorWrapper: run_response type={type(run_response)}, attributes={dir(run_response)}")
                         if run_response and hasattr(run_response, "content"):
                             response_text = run_response.content
-                            print(f"DEBUG AgentExecutorWrapper: 提取到内容: '{response_text}'")
+                            print(f"DEBUG AgentExecutorWrapper: Extracted content: '{response_text}'")
                         else:
-                            response_text = f"收到消息: {message}"
-                            print(f"DEBUG AgentExecutorWrapper: 未提取到内容，使用默认回复: '{response_text}'")
+                            response_text = f"Received message: {message}"
+                            print(f"DEBUG AgentExecutorWrapper: No content extracted, using default reply: '{response_text}'")
                     except Exception as e:
-                        print(f"DEBUG AgentExecutorWrapper: Agent.arun调用失败: {str(e)}")
+                        print(f"DEBUG AgentExecutorWrapper: Agent.arun call failed: {str(e)}")
                         traceback.print_exc()
-                        # 如果Agent执行失败，创建一个错误消息
-                        error_text = f"执行出错: {str(e)}"
-                        print(f"DEBUG AgentExecutorWrapper: 创建错误消息: '{error_text}'")
+                        # If Agent execution fails, create an error message
+                        error_text = f"Execution error: {str(e)}"
+                        print(f"DEBUG AgentExecutorWrapper: Creating error message: '{error_text}'")
                         response_message = Message(
                             messageId=str(uuid4()),
                             role=Role.agent,
                             parts=[Part(root=TextPart(text=error_text))]
                         )
-                        print(f"DEBUG AgentExecutorWrapper: 入队错误消息并返回")
+                        print(f"DEBUG AgentExecutorWrapper: Enqueuing error message and returning")
                         await event_queue.enqueue_event(response_message)
                         return
 
-                    # 创建响应消息
-                    print(f"DEBUG AgentExecutorWrapper: 创建正常响应消息: '{response_text}'")
+                    # Create response message
+                    print(f"DEBUG AgentExecutorWrapper: Creating normal response message: '{response_text}'")
                     response_message = Message(
                         messageId=str(uuid4()),
                         role=Role.agent,
                         parts=[Part(root=TextPart(text=response_text))]
                     )
 
-                    # 入队响应消息
-                    print(f"DEBUG AgentExecutorWrapper: 入队响应消息并返回")
+                    # Enqueue response message
+                    print(f"DEBUG AgentExecutorWrapper: Enqueuing response message and returning")
                     await event_queue.enqueue_event(response_message)
                     return
                 except Exception as e:
-                    # 如果Agent执行失败，创建一个错误消息
-                    print(f"DEBUG AgentExecutorWrapper: 执行出错(外层异常): {str(e)}")
-                    error_text = f"执行出错: {str(e)}"
-                    print(f"DEBUG AgentExecutorWrapper: 创建错误消息: '{error_text}'")
+                    # If Agent execution fails, create an error message
+                    print(f"DEBUG AgentExecutorWrapper: Execution error (outer exception): {str(e)}")
+                    error_text = f"Execution error: {str(e)}"
+                    print(f"DEBUG AgentExecutorWrapper: Creating error message: '{error_text}'")
                     response_message = Message(
                         messageId=str(uuid4()),
                         role=Role.agent,
                         parts=[Part(root=TextPart(text=error_text))]
                     )
-                    print(f"DEBUG AgentExecutorWrapper: 入队错误消息并返回")
+                    print(f"DEBUG AgentExecutorWrapper: Enqueuing error message and returning")
                     await event_queue.enqueue_event(response_message)
                     return
 
-            # 如果没有消息或执行失败，创建一个默认响应
-            default_text = "收到空消息"
-            print(f"DEBUG AgentExecutorWrapper: 没有提取到消息或执行失败，返回默认消息: '{default_text}'")
+            # If no message or execution failed, create a default response
+            default_text = "Received empty message"
+            print(f"DEBUG AgentExecutorWrapper: No message extracted or execution failed, returning default message: '{default_text}'")
             response_message = Message(
                 messageId=str(uuid4()),
                 role=Role.agent,
                 parts=[Part(root=TextPart(text=default_text))]
             )
 
-            # 入队响应消息
-            print(f"DEBUG AgentExecutorWrapper: 入队默认响应消息")
+            # Enqueue response message
+            print(f"DEBUG AgentExecutorWrapper: Enqueuing default response message")
             await event_queue.enqueue_event(response_message)
 
         except Exception as e:
-            # 创建错误消息
-            print(f"DEBUG AgentExecutorWrapper: 最外层异常: {str(e)}")
+            # Create error message
+            print(f"DEBUG AgentExecutorWrapper: Outermost exception: {str(e)}")
 
             traceback.print_exc()
             error_message = Message(
                 messageId=str(uuid4()),
                 role=Role.agent,
-                parts=[Part(root=TextPart(text=f"执行出错: {str(e)}"))]
+                parts=[Part(root=TextPart(text=f"Execution error: {str(e)}"))]
             )
 
-            # 入队错误消息
-            print(f"DEBUG AgentExecutorWrapper: 入队最外层错误消息")
+            # Enqueue error message
+            print(f"DEBUG AgentExecutorWrapper: Enqueuing outermost error message")
             await event_queue.enqueue_event(error_message)
 
     async def cancel(self, context, event_queue):
         """
-        取消正在执行的任务
+        Cancel the currently executing task
         
         Args:
-            context: 请求上下文
-            event_queue: 事件队列
+            context: Request context
+            event_queue: Event queue
         """
 
-        # 创建取消消息
+        # Create cancel message
         cancel_message = Message(
             messageId=str(uuid4()),
             role=Role.agent,
-            parts=[Part(root=TextPart(text="任务已被用户取消"))]
+            parts=[Part(root=TextPart(text="Task has been cancelled by user"))]
         )
 
-        # 入队取消消息
+        # Enqueue cancel message
         await event_queue.enqueue_event(cancel_message)
 
 
 class AgentServer(BaseServer):
-    """纯A2A协议的Agent服务"""
+    """Pure A2A protocol Agent service"""
 
     def __init__(
             self,
@@ -273,12 +273,12 @@ class AgentServer(BaseServer):
             port: int = 8000
     ):
         """
-        初始化AgentServer
+        Initialize AgentServer
         
         Args:
-            agent: 要服务的Agent实例
-            host: 服务器主机
-            port: 服务器端口
+            agent: Agent instance to serve
+            host: Server host
+            port: Server port
         """
         super().__init__(
             host=host,
@@ -290,24 +290,24 @@ class AgentServer(BaseServer):
 
     def create_agent_card(self) -> AgentCard:
         """
-        创建AgentCard
+        Create AgentCard
         
         Returns:
-            AgentCard: 包含Agent信息的卡片
+            AgentCard: Card containing Agent information
         """
-        # 获取Agent信息
+        # Get Agent information
         name = self.agent.name or "Unknown Agent"
         description = self.agent.description or self.agent.role or "An AI agent"
 
-        # 获取工具信息（作为技能）
+        # Get tool information (as skills)
         skills = []
         if hasattr(self.agent, "get_tools"):
-            # 使用临时会话ID获取工具列表
+            # Use a temporary session ID to get tool list
             tools = self.agent.get_tools(session_id="temp_session_id")
             if tools:
                 for i, tool in enumerate(tools):
                     tool_name = getattr(tool, "name", None)
-                    # 检查工具是否有description属性（agno框架的Function类）
+                    # Check if tool has a description attribute (Agno Function class)
                     if hasattr(tool, "description") and tool.description:
                         tool_description = tool.description
                     elif hasattr(tool, "__doc__") and tool.__doc__:
@@ -323,16 +323,16 @@ class AgentServer(BaseServer):
                             "tags": []
                         })
 
-        # 如果没有工具，添加一个默认技能
+        # If no tools, add a default skill
         if not skills:
             skills.append({
                 "id": "conversation",
                 "name": "conversation",
-                "description": "能够进行对话交流",
+                "description": "Able to conduct conversation.",
                 "tags": []
             })
 
-        # 创建AgentCard
+        # Create AgentCard
         return AgentCard(
             name=name,
             description=description,
@@ -350,49 +350,49 @@ class AgentServer(BaseServer):
 
     def create_executor(self) -> AgentExecutor:
         """
-        创建执行器
+        Create executor
         
         Returns:
-            AgentExecutor: 包装了Agent的执行器
+            AgentExecutor: Executor wrapping the Agent
         """
         return AgentExecutorWrapper(self.agent)
 
 
 async def main():
-    """命令行入口点"""
+    """Command line entry point"""
     import argparse
     import asyncio
     from agno.agent.agent import Agent
     
-    parser = argparse.ArgumentParser(description="启动A2A Agent服务器")
-    parser.add_argument("--host", default="0.0.0.0", help="服务器主机地址")
-    parser.add_argument("--port", type=int, default=8000, help="服务器端口")
-    parser.add_argument("--name", default="Test Agent", help="Agent名称")
-    parser.add_argument("--role", default="Assistant", help="Agent角色")
+    parser = argparse.ArgumentParser(description="Start A2A Agent server")
+    parser.add_argument("--host", default="0.0.0.0", help="Server host address")
+    parser.add_argument("--port", type=int, default=8000, help="Server port")
+    parser.add_argument("--name", default="Test Agent", help="Agent name")
+    parser.add_argument("--role", default="Assistant", help="Agent role")
     
     args = parser.parse_args()
     
-    # 创建一个简单的测试Agent
+    # Create a simple test Agent
     agent = Agent(
         name=args.name,
         role=args.role,
-        instructions="我是一个AI助手，可以帮助用户解决问题。"
+        instructions="I am an AI assistant that can help users solve problems."
     )
     
-    # 创建并启动服务器
+    # Create and start the server
     server = AgentServer(agent, host=args.host, port=args.port)
     
     try:
         await server.start()
-        print(f"Agent服务器已启动: http://{args.host}:{args.port}")
+        print(f"Agent server started: http://{args.host}:{args.port}")
         
-        # 保持服务器运行
+        # Keep the server running
         while True:
             await asyncio.sleep(1)
     except KeyboardInterrupt:
-        print("\n正在停止服务器...")
+        print("\nStopping server...")
         await server.stop()
-        print("服务器已停止")
+        print("Server stopped")
 
 
 if __name__ == "__main__":
