@@ -13,58 +13,58 @@ model = OpenAIChat(id="gpt-4o", api_key=api_key, base_url=base_url)
 
 
 async def main():
-    # 初始化变量，以便在finally块中可以安全地访问
+    # Initialize variables so they can be safely accessed in finally block
     remote_search_agent = None
     remote_analysis_agent = None
     remote_team_agent = None
     server_api = None
 
     try:
-        # 创建A2AAgent连接到远程服务
-        print("创建A2AAgent...")
+        # Create A2AAgent to connect to remote services
+        print("Creating A2AAgent...")
         remote_search_agent = A2AAgent(
-            base_url="http://localhost:8081/",  # 确保末尾有斜杠
+            base_url="http://localhost:8081/",  # Ensure trailing slash
             name="RemoteSearchAgent",
-            role="远程搜索代理",
-            agent_id="8e45f5a1-c032-4c6c-9913-2f3c4a8b5e01"  # 使用UUID格式
+            role="Remote Search Agent",
+            agent_id="8e45f5a1-c032-4c6c-9913-2f3c4a8b5e01"  # Use UUID format
         )
 
         remote_analysis_agent = A2AAgent(
-            base_url="http://localhost:8082/",  # 确保末尾有斜杠
+            base_url="http://localhost:8082/",  # Ensure trailing slash
             name="RemoteAnalysisAgent",
-            role="远程分析代理",
-            agent_id="6a72c340-9b5d-48e5-b8c7-f21a0d3e94fa"  # 使用UUID格式
+            role="Remote Analysis Agent",
+            agent_id="6a72c340-9b5d-48e5-b8c7-f21a0d3e94fa"  # Use UUID format
         )
 
-        # 创建本地代理
+        # Create local agent
         local_agent = Agent(
-            introduction="你是一个编程高手，负责处理编程相关的问题",
+            introduction="You are a programming expert responsible for handling programming-related questions",
             name="LocalAgent",
             role="LocalAgent",
             model=model,
             agent_id="8d97f474-c0a6-4973-bd14-xx54296e54be"
         )
 
-        # 创建本地团队
+        # Create local team
         local_team = Team(
-            name="本地团队",
+            name="Local Team",
             members=[remote_search_agent, local_agent],
             mode="coordinate",
             model=model,
             team_id="8d97f474-c0a6-4973-bd14-a954296e54be"
         )
 
-        # 创建连接到TeamServer的A2AAgent
-        print("创建连接到TeamServer的A2AAgent...")
+        # Create A2AAgent connected to TeamServer
+        print("Creating A2AAgent connected to TeamServer...")
         remote_team_agent = A2AAgent(
-            base_url="http://localhost:8083/",  # 确保末尾有斜杠
+            base_url="http://localhost:8083/",  # Ensure trailing slash
             name="RemoteTeamAgent",
-            role="远程团队代理",
+            role="Remote Team Agent",
             agent_id="73406249-a559-456b-88ff-68475df7c7ae"
         )
 
-        # 启动ServerAPI
-        print("启动ServerAPI...")
+        # Start ServerAPI
+        print("Starting ServerAPI...")
         server_api = ServerAPI(
             agents=[remote_team_agent, remote_search_agent, remote_analysis_agent, local_agent],
             teams=[local_team],
@@ -73,34 +73,34 @@ async def main():
         await server_api.start()
 
         print("\n" + "=" * 50)
-        print("服务已启动:")
+        print("Services started:")
         print("=" * 50)
         print(f"Search Agent: http://localhost:8081")
         print(f"Analysis Agent: http://localhost:8082")
         print(f"Team: http://localhost:8083")
         print(f"ServerAPI: http://localhost:8084")
-        print("\n可以使用以下命令测试ServerAPI:")
+        print("\nYou can test ServerAPI with the following commands:")
         print('curl -X GET http://localhost:8084/agents')
         print('curl -X GET http://localhost:8084/teams')
         print(
-            'curl -X POST http://localhost:8084/agents/8e45f5a1-c032-4c6c-9913-2f3c4a8b5e01/run -H "Content-Type: application/json" -d \'{"message": "你好"}\'')
+            'curl -X POST http://localhost:8084/agents/8e45f5a1-c032-4c6c-9913-2f3c4a8b5e01/run -H "Content-Type: application/json" -d \'{"message": "Hello"}\'')
         print(
-            'curl -X POST http://localhost:8084/teams/8d97f474-c0a6-4973-bd14-a954296e54be/run -H "Content-Type: application/json" -d \'{"message": "请团队协作"}\'')
+            'curl -X POST http://localhost:8084/teams/8d97f474-c0a6-4973-bd14-a954296e54be/run -H "Content-Type: application/json" -d \'{"message": "Please collaborate as a team"}\'')
 
-        print("\n按Ctrl+C停止服务...")
+        print("\nPress Ctrl+C to stop services...")
 
-        # 保持服务运行
+        # Keep service running
         while True:
             await asyncio.sleep(1)
 
     except KeyboardInterrupt:
-        print("\n接收到停止信号，正在停止服务...")
+        print("\nReceived stop signal, stopping services...")
     finally:
-        # 停止所有服务
+        # Stop all services
         if server_api:
             await server_api.stop()
 
-        # 关闭A2A连接
+        # Close A2A connections
         if remote_search_agent:
             await remote_search_agent.close()
         if remote_analysis_agent:
@@ -108,7 +108,7 @@ async def main():
         if remote_team_agent:
             await remote_team_agent.close()
 
-        print("所有服务已停止")
+        print("All services stopped")
 
 
 if __name__ == "__main__":

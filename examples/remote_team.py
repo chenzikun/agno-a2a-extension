@@ -18,73 +18,73 @@ model = OpenAIChat(id="gpt-4o", api_key=api_key, base_url=base_url)
 
 
 async def main():
-    # 1. 创建基础Agent
-    print("创建基础Agent...")
+    # 1. Create basic Agent
+    print("Creating basic Agent...")
     local_agent = Agent(
         name="SearchAgent",
-        role="天气查询专家",
+        role="Weather Query Expert",
         agent_id="search",
         tools=[Searxng(host="http://search.aiapps.autel.com")],
         model=model
     )
 
-    # 初始化变量，以便在finally块中可以安全地访问
+    # Initialize variables so they can be safely accessed in finally block
     remote_search_agent = None
     remote_analysis_agent = None
     team_server = None
 
     try:
-        # 3. 创建A2AAgent连接到远程服务
-        print("创建A2AAgent...")
+        # 3. Create A2AAgent to connect to remote services
+        print("Creating A2AAgent...")
         remote_search_agent = A2AAgent(
             base_url="http://localhost:8081",
             name="RemoteSearchAgent",
-            role="远程搜索代理"
+            role="Remote Search Agent"
         )
 
         remote_analysis_agent = A2AAgent(
             base_url="http://localhost:8082",
             name="RemoteAnalysisAgent",
-            role="远程分析代理"
+            role="Remote Analysis Agent"
         )
 
-        # 4. 创建本地Team
-        print("创建本地Team...")
+        # 4. Create local Team
+        print("Creating local Team...")
 
-        # 添加stream_member_events=True属性以支持流式处理
+        # Add stream_member_events=True attribute to support streaming
         local_team = Team(
-            name="本地团队",
+            name="Local Team",
             members=[local_agent, remote_search_agent, remote_analysis_agent],
             mode="coordinate",
             model=model,
             team_id="8d97f474-c0a6-4973-bd14-a954296e54be",
-            stream_member_events=True  # 添加此属性启用流式处理
+            stream_member_events=True  # Add this attribute to enable streaming
         )
 
-        # 5. 启动TeamServer
-        print("启动TeamServer...")
+        # 5. Start TeamServer
+        print("Starting TeamServer...")
         team_server = TeamServer(team=local_team, port=8083)
         await team_server.start()
 
-        # 保持服务运行
+        # Keep service running
         while True:
             await asyncio.sleep(1)
 
     except KeyboardInterrupt:
-        print("\n接收到停止信号，正在停止服务...")
+        print("\nReceived stop signal, stopping service...")
     finally:
-        # 停止所有服务
+        # Stop all services
 
         if team_server:
             await team_server.stop()
 
-        # 关闭A2A连接
+        # Close A2A connections
         if remote_search_agent:
             await remote_search_agent.close()
         if remote_analysis_agent:
             await remote_analysis_agent.close()
 
-        print("所有服务已停止")
+        print("All services stopped")
 
 
 if __name__ == "__main__":

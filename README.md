@@ -1,103 +1,103 @@
-# AI-Agents 平台 - Agno A2A 扩展
+# AI-Agents Platform - Agno A2A Extension
 
-一个强大的AI代理框架，用于构建、管理和部署智能代理应用。基于Agno框架和A2A协议，提供完整的代理间通信和团队协作功能。
+A powerful AI agent framework for building, managing, and deploying intelligent agent applications. Based on the Agno framework and A2A protocol, providing complete agent-to-agent communication and team collaboration capabilities.
 
-## 功能特性
+## Features
 
-- **A2A协议支持**: 基于A2A协议的代理间通信
-- **多代理团队**: 支持创建和管理多代理团队
-- **RESTful API**: 提供完整的REST API接口
-- **流式响应**: 支持实时流式响应
-- **多种数据库支持**: 支持MySQL、PostgreSQL、MongoDB等
-- **Web界面**: 提供现代化的Web测试界面
+- **A2A Protocol Support**: Agent-to-agent communication based on A2A protocol
+- **Multi-Agent Teams**: Support for creating and managing multi-agent teams
+- **RESTful API**: Complete REST API interface
+- **Streaming Responses**: Real-time streaming response support
+- **Multiple Database Support**: Support for MySQL, PostgreSQL, MongoDB, etc.
+- **Web Interface**: Modern web testing interface
 
-## 快速开始
+## Quick Start
 
-### 安装
+### Installation
 
 ```bash
 pip install agno_a2a_ext
 ```
 
-### 基本使用
+### Basic Usage
 
-#### 1. 启动单个Agent服务器
+#### 1. Start Single Agent Server
 
 ```bash
 agno-agent --host 0.0.0.0 --port 8000 --name "My Agent"
 ```
 
-#### 2. 启动Team服务器
+#### 2. Start Team Server
 
 ```bash
 agno-team --host 0.0.0.0 --port 9000 --name "My Team"
 ```
 
-#### 3. 启动API服务器
+#### 3. Start API Server
 
 ```bash
 agno-api --host 0.0.0.0 --port 8080
 ```
 
-### 编程使用
+### Programming Usage
 
-#### 创建Agent服务器
+#### Create Agent Server
 
 ```python
 from agno_a2a_ext import AgentServer
 from agno.agent.agent import Agent
 
-# 创建Agent
+# Create Agent
 agent = Agent(
     name="My Agent",
     role="Assistant",
-    instructions="我是一个AI助手，可以帮助用户解决问题。"
+    instructions="I am an AI assistant that can help users solve problems."
 )
 
-# 创建服务器
+# Create server
 server = AgentServer(agent, host="0.0.0.0", port=8000)
 
-# 启动服务器
+# Start server
 await server.start()
 ```
 
-#### 创建Team服务器
+#### Create Team Server
 
 ```python
 from agno_a2a_ext import TeamServer
 from agno.agent.agent import Agent
 from agno.team.team import Team
 
-# 创建团队成员
+# Create team members
 agent1 = Agent(name="Assistant 1", role="Assistant")
 agent2 = Agent(name="Assistant 2", role="Developer")
 
-# 创建Team
+# Create Team
 team = Team(
     name="Development Team",
     members=[agent1, agent2],
-    instructions="我们是一个开发团队，协同工作来帮助用户。"
+    instructions="We are a development team working together to help users."
 )
 
-# 创建服务器
+# Create server
 server = TeamServer(team, host="0.0.0.0", port=9000)
 
-# 启动服务器
+# Start server
 await server.start()
 ```
 
-#### 创建API服务器
+#### Create API Server
 
 ```python
 from agno_a2a_ext import ServerAPI
 from agno.agent.agent import Agent
 from agno.team.team import Team
 
-# 创建Agent和Team
+# Create Agent and Team
 agent = Agent(name="General Assistant", role="Assistant")
 team = Team(name="Development Team", members=[agent])
 
-# 创建API服务器
+# Create API server
 api_server = ServerAPI(
     agents=[agent],
     teams=[team],
@@ -105,126 +105,126 @@ api_server = ServerAPI(
     port=8080
 )
 
-# 启动服务器
+# Start server
 await api_server.start()
 ```
 
-#### 使用A2A客户端代理
+#### Use A2A Client Agent
 
 ```python
 from agno_a2a_ext import A2AAgent
 
-# 创建A2A客户端代理
+# Create A2A client agent
 a2a_agent = A2AAgent(
     base_url="http://localhost:8000",
     name="Remote Agent",
     role="Assistant"
 )
 
-# 使用代理
-response = await a2a_agent.arun("你好，请介绍一下你自己")
+# Use agent
+response = await a2a_agent.arun("Hello, please introduce yourself")
 print(response.content)
 ```
 
-#### 使用工厂模式管理
+#### Use Factory Pattern Management
 
 ```python
 from agno_a2a_ext import AIFactory
 
-# 创建工厂实例
+# Create factory instance
 factory = AIFactory()
 
-# 注册Agent
+# Register Agent
 agent = Agent(name="My Agent", role="Assistant")
 factory.register(agent)
 
-# 获取Agent
+# Get Agent
 retrieved_agent = factory.get_agent_by_id(agent.id)
 
-# 获取所有Agent
+# Get all Agents
 all_agents = factory.get_all_agents()
 ```
 
-## API文档
+## API Documentation
 
-启动API服务器后，可以访问以下端点：
+After starting the API server, you can access the following endpoints:
 
-- **API文档**: `http://localhost:8080/docs`
-- **健康检查**: `http://localhost:8080/health`
-- **状态检查**: `http://localhost:8080/status`
+- **API Documentation**: `http://localhost:8080/docs`
+- **Health Check**: `http://localhost:8080/health`
+- **Status Check**: `http://localhost:8080/status`
 
-### 主要API端点
+### Main API Endpoints
 
-#### Agent相关
-- `GET /playground/agents` - 获取所有Agent
-- `POST /playground/agents/{agent_id}/runs` - 运行Agent
-- `GET /playground/agents/{agent_id}/sessions` - 获取Agent会话
+#### Agent Related
+- `GET /playground/agents` - Get all Agents
+- `POST /playground/agents/{agent_id}/runs` - Run Agent
+- `GET /playground/agents/{agent_id}/sessions` - Get Agent sessions
 
-#### Team相关
-- `GET /playground/teams` - 获取所有Team
-- `POST /playground/teams/{team_id}/runs` - 运行Team
-- `GET /playground/teams/{team_id}/sessions` - 获取Team会话
+#### Team Related
+- `GET /playground/teams` - Get all Teams
+- `POST /playground/teams/{team_id}/runs` - Run Team
+- `GET /playground/teams/{team_id}/sessions` - Get Team sessions
 
-## 配置
+## Configuration
 
-### 环境变量
+### Environment Variables
 
 ```bash
-# 数据库配置
+# Database configuration
 DATABASE_URL=mysql://user:password@localhost/dbname
 
-# API密钥
+# API keys
 OPENAI_API_KEY=your_openai_api_key
 
-# 服务器配置
+# Server configuration
 HOST=0.0.0.0
 PORT=8080
 ```
 
-### 数据库迁移
+### Database Migration
 
 ```bash
-# 执行迁移
+# Execute migration
 alembic upgrade head
 
-# 创建新迁移
+# Create new migration
 alembic revision --autogenerate -m "Add new table"
 ```
 
-## 开发
+## Development
 
-### 安装开发依赖
+### Install Development Dependencies
 
 ```bash
 pip install -e ".[dev]"
 ```
 
-### 运行测试
+### Run Tests
 
 ```bash
 pytest tests/
 ```
 
-### 代码格式化
+### Code Formatting
 
 ```bash
 black agno_a2a_ext/
 isort agno_a2a_ext/
 ```
 
-## 许可证
+## License
 
 MIT License
 
-## 贡献
+## Contributing
 
-欢迎提交Issue和Pull Request！
+Welcome to submit Issues and Pull Requests!
 
-## 更新日志
+## Changelog
 
 ### v1.0.0
-- 初始版本发布
-- 支持A2A协议
-- 提供Agent和Team服务器
-- 完整的REST API
-- Web测试界面 
+- Initial version release
+- A2A protocol support
+- Agent and Team servers
+- Complete REST API
+- Web testing interface 

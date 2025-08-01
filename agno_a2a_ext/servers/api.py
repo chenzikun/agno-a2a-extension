@@ -45,9 +45,9 @@ async def chat_response_streamer(
         audio: Optional[List[Audio]] = None,
         videos: Optional[List[Video]] = None,
 ) -> AsyncGenerator:
-    import json  # 导入json模块
+    import json  # Import json module
     try:
-        print(f"DEBUG: 开始流式请求，agent={agent.name}, message='{message}'")
+        print(f"DEBUG: Starting streaming request, agent={agent.name}, message='{message}'")
         run_response = await agent.arun(
             message=message,
             session_id=session_id,
@@ -60,18 +60,18 @@ async def chat_response_streamer(
         )
 
         if hasattr(run_response, "__aiter__"):
-            print(f"DEBUG: agent.arun返回了异步迭代器")
+            print(f"DEBUG: agent.arun returned async iterator")
             chunk_count = 0
             async for run_response_chunk in run_response:
                 chunk_count += 1
-                print(f"DEBUG: 收到流式响应块 #{chunk_count}, 类型={type(run_response_chunk).__name__}")
+                print(f"DEBUG: Received streaming response chunk #{chunk_count}, type={type(run_response_chunk).__name__}")
 
-                # 确保我们有一个字典
+                # Ensure we have a dictionary
                 response_dict = {}
                 if hasattr(run_response_chunk, "to_dict"):
                     response_dict = run_response_chunk.to_dict()
                 else:
-                    # 手动构建字典
+                    # Manually build dictionary
                     for attr in ["content", "content_type", "status", "images", "videos", "audio", "created_at"]:
                         if hasattr(run_response_chunk, attr):
                             value = getattr(run_response_chunk, attr)
@@ -79,7 +79,7 @@ async def chat_response_streamer(
                                 value = []
                             response_dict[attr] = value
 
-                # 确保有event字段
+                # Ensure event field exists
                 if "event" not in response_dict:
                     if hasattr(run_response_chunk, "event"):
                         response_dict["event"] = getattr(run_response_chunk, "event")
@@ -94,10 +94,10 @@ async def chat_response_streamer(
                         else:
                             response_dict["event"] = "RunResponse"
                     else:
-                        # 默认为RunResponse
+                        # Default to RunResponse
                         response_dict["event"] = "RunResponse"
 
-                # 确保基本字段存在
+                # Ensure basic fields exist
                 if "content" not in response_dict:
                     response_dict["content"] = ""
                 if "content_type" not in response_dict:
@@ -1262,7 +1262,7 @@ class ServerAPI:
         return app
 
     async def start(self):
-        """启动服务器"""
+        """Start server"""
         app = self.create_app()
 
         config = uvicorn.Config(
@@ -1275,10 +1275,10 @@ class ServerAPI:
         self._server = server
 
         self._task = asyncio.create_task(server.serve())
-        print(f"ServerAPI已启动：http://{self.host}:{self.port}")
+        print(f"ServerAPI started: http://{self.host}:{self.port}")
 
     async def stop(self):
-        """停止服务器"""
+        """Stop server"""
         if self._server:
             self._server.should_exit = True
 
@@ -1288,46 +1288,46 @@ class ServerAPI:
             self._server = None
             self._task = None
             self._app = None
-            print("ServerAPI已停止")
+            print("ServerAPI stopped")
 
 
 async def main():
-    """命令行入口点"""
+    """Command line entry point"""
     import argparse
     import asyncio
     from agno.agent.agent import Agent
     from agno.team.team import Team
     
-    parser = argparse.ArgumentParser(description="启动AI-Agents API服务器")
-    parser.add_argument("--host", default="0.0.0.0", help="服务器主机地址")
-    parser.add_argument("--port", type=int, default=8080, help="服务器端口")
-    parser.add_argument("--title", default="AI-Agents API", help="API标题")
-    parser.add_argument("--description", default="AI-Agents API服务器", help="API描述")
+    parser = argparse.ArgumentParser(description="Start AI-Agents API server")
+    parser.add_argument("--host", default="0.0.0.0", help="Server host address")
+    parser.add_argument("--port", type=int, default=8080, help="Server port")
+    parser.add_argument("--title", default="AI-Agents API", help="API title")
+    parser.add_argument("--description", default="AI-Agents API server", help="API description")
     
     args = parser.parse_args()
     
-    # 创建测试Agent
+    # Create test Agents
     agent1 = Agent(
         name="General Assistant",
         role="Assistant",
-        instructions="我是一个通用助手，可以帮助用户解决各种问题。"
+        instructions="I am a general assistant that can help users solve various problems."
     )
     
     agent2 = Agent(
         name="Code Assistant",
         role="Developer",
-        instructions="我是一个代码助手，专门帮助用户解决编程问题。"
+        instructions="I am a code assistant specialized in helping users solve programming problems."
     )
     
-    # 创建测试Team
+    # Create test Team
     team = Team(
         name="Development Team",
-        description="一个开发团队，包含多个专业助手",
+        description="A development team with multiple specialized assistants",
         members=[agent1, agent2],
-        instructions="我们是一个开发团队，协同工作来帮助用户解决技术问题。"
+        instructions="We are a development team working together to help users solve technical problems."
     )
     
-    # 创建API服务器
+    # Create API server
     api_server = ServerAPI(
         agents=[agent1, agent2],
         teams=[team],
@@ -1339,16 +1339,16 @@ async def main():
     
     try:
         await api_server.start()
-        print(f"API服务器已启动: http://{args.host}:{args.port}")
-        print(f"API文档: http://{args.host}:{args.port}/docs")
+        print(f"API server started: http://{args.host}:{args.port}")
+        print(f"API documentation: http://{args.host}:{args.port}/docs")
         
-        # 保持服务器运行
+        # Keep the server running
         while True:
             await asyncio.sleep(1)
     except KeyboardInterrupt:
-        print("\n正在停止服务器...")
+        print("\nStopping server...")
         await api_server.stop()
-        print("服务器已停止")
+        print("Server stopped")
 
 
 if __name__ == "__main__":

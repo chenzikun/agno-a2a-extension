@@ -18,38 +18,38 @@ model = OpenAIChat(id="gpt-4o", api_key=api_key, base_url=base_url)
 
 
 async def main():
-    # 1. 创建基础Agent
-    print("创建基础Agent...")
+    # 1. Create basic Agent
+    print("Creating basic Agent...")
     search_agent = Agent(
         name="SearchAgent",
-        role="搜索专家",
+        role="Search Expert",
         agent_id="search",
         tools=[Searxng(host="http://search.aiapps.autel.com")],
         model=model
     )
     try:
-        # 创建服务器
-        print("启动AgentServer...")
+        # Create server
+        print("Starting AgentServer...")
         search_server = AgentServer(agent=search_agent, port=8081)
         await search_server.start()
-        print("AgentServer已就绪")
+        print("AgentServer is ready")
 
-        # 保持服务运行
+        # Keep service running
         while True:
             await asyncio.sleep(1)
     except KeyboardInterrupt:
-        print("\n接收到停止信号，正在停止服务...")
+        print("\nReceived stop signal, stopping service...")
     except Exception as e:
-        print(f"发生错误: {str(e)}")
+        print(f"Error occurred: {str(e)}")
         traceback.print_exc()
     finally:
-        # Agent对象没有stop方法，应该是服务器对象的方法
+        # Agent object doesn't have stop method, should be server object's method
         if 'search_server' in locals():
             try:
                 await search_server.stop()
             except Exception as e:
-                print(f"停止服务器时出错: {str(e)}")
-        print("服务已停止")
+                print(f"Error stopping server: {str(e)}")
+        print("Service stopped")
 
 
 asyncio.run(main())

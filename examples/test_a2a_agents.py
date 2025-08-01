@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-A2AAgent功能测试
+A2AAgent Function Testing
 
-专注于测试A2AAgent的功能，包括连接、通信、错误处理等。
+Focus on testing A2AAgent functionality, including connection, communication, error handling, etc.
 """
 
 import asyncio
@@ -23,7 +23,7 @@ model = OpenAIChat(id="gpt-4o", api_key=api_key, base_url=base_url)
 
 
 class A2AAgentTester:
-    """A2AAgent测试器"""
+    """A2AAgent Tester"""
 
     def __init__(self):
         self.remote_search_agent = None
@@ -32,114 +32,114 @@ class A2AAgentTester:
         self.local_team = None
 
     async def setup_agents(self):
-        """设置A2AAgent"""
-        print("设置A2AAgent...")
+        """Setup A2AAgent"""
+        print("Setting up A2AAgent...")
 
-        # 创建A2AAgent连接到远程服务
+        # Create A2AAgent to connect to remote services
         self.remote_search_agent = A2AAgent(
             base_url="http://localhost:8081/",
             name="RemoteSearchAgent",
-            role="远程搜索代理",
+            role="Remote Search Agent",
             agent_id="8e45f5a1-c032-4c6c-9913-2f3c4a8b5e01"
         )
 
         self.remote_analysis_agent = A2AAgent(
             base_url="http://localhost:8082/",
             name="RemoteAnalysisAgent",
-            role="远程分析代理",
+            role="Remote Analysis Agent",
             agent_id="6a72c340-9b5d-48e5-b8c7-f21a0d3e94fa"
         )
 
-        # 创建连接到TeamServer的A2AAgent
+        # Create A2AAgent connected to TeamServer
         self.remote_team_agent = A2AAgent(
             base_url="http://localhost:8083/",
             name="RemoteTeamAgent",
-            role="远程团队代理",
+            role="Remote Team Agent",
             agent_id="73406249-a559-456b-88ff-68475df7c7ae"
         )
 
-        # 创建本地团队
+        # Create local team
         self.local_team = Team(
-            name="本地团队",
+            name="Local Team",
             members=[self.remote_search_agent, self.remote_analysis_agent],
             mode="coordinate",
             model=model,
             team_id="8d97f474-c0a6-4973-bd14-a954296e54be"
         )
 
-        print("✓ A2AAgent设置完成")
+        print("✓ A2AAgent setup completed")
 
     async def test_remote_search_agent(self):
-        """测试远程搜索代理"""
-        print("\n=== 测试远程搜索代理 ===")
+        """Test remote search agent"""
+        print("\n=== Testing Remote Search Agent ===")
 
         try:
-            response = await self.remote_search_agent.arun("你是什么角色?")
-            print(f"✓ 远程搜索代理响应成功")
-            print(f"  响应类型: {type(response).__name__}")
-            print(f"  响应内容: {response.content[:100]}...")
+            response = await self.remote_search_agent.arun("What is your role?")
+            print(f"✓ Remote search agent response successful")
+            print(f"  Response type: {type(response).__name__}")
+            print(f"  Response content: {response.content[:100]}...")
             return True
         except Exception as e:
-            print(f"❌ 远程搜索代理测试失败: {e}")
+            print(f"❌ Remote search agent test failed: {e}")
             return False
 
     async def test_remote_analysis_agent(self):
-        """测试远程分析代理"""
-        print("\n=== 测试远程分析代理 ===")
+        """Test remote analysis agent"""
+        print("\n=== Testing Remote Analysis Agent ===")
 
         try:
-            response = await self.remote_analysis_agent.arun("请介绍一下你的分析能力")
-            print(f"✓ 远程分析代理响应成功")
-            print(f"  响应类型: {type(response).__name__}")
-            print(f"  响应内容: {response.content[:100]}...")
+            response = await self.remote_analysis_agent.arun("Please introduce your analysis capabilities")
+            print(f"✓ Remote analysis agent response successful")
+            print(f"  Response type: {type(response).__name__}")
+            print(f"  Response content: {response.content[:100]}...")
             return True
         except Exception as e:
-            print(f"❌ 远程分析代理测试失败: {e}")
+            print(f"❌ Remote analysis agent test failed: {e}")
             return False
 
     async def test_remote_team_agent(self):
-        """测试远程团队代理"""
-        print("\n=== 测试远程团队代理 ===")
+        """Test remote team agent"""
+        print("\n=== Testing Remote Team Agent ===")
 
         try:
-            response = await self.remote_team_agent.arun("请介绍你的团队")
-            print(f"✓ 远程团队代理响应成功")
-            print(f"  响应类型: {type(response).__name__}")
-            print(f"  响应内容: {response.content[:100]}...")
+            response = await self.remote_team_agent.arun("Please introduce your team")
+            print(f"✓ Remote team agent response successful")
+            print(f"  Response type: {type(response).__name__}")
+            print(f"  Response content: {response.content[:100]}...")
             return True
         except Exception as e:
-            print(f"❌ 远程团队代理测试失败: {e}")
+            print(f"❌ Remote team agent test failed: {e}")
             return False
 
     async def test_local_team_with_a2a_agents(self):
-        """测试包含A2AAgent的本地团队"""
-        print("\n=== 测试本地团队（包含A2AAgent） ===")
+        """Test local team (with A2AAgent)"""
+        print("\n=== Testing Local Team (with A2AAgent) ===")
 
         try:
-            # 直接测试团队，不使用复杂的错误处理
-            response = await self.local_team.arun("请团队成员协作介绍一下深圳")
+            # Directly test the team, without complex error handling
+            response = await self.local_team.arun("Please have team members collaborate to introduce Shenzhen")
 
             if response and hasattr(response, 'content'):
-                print(f"✓ 本地团队测试成功")
-                print(f"  响应内容: {response.content[:100]}...")
+                print(f"✓ Local team test successful")
+                print(f"  Response content: {response.content[:100]}...")
                 return True
             else:
-                print("❌ 本地团队测试失败")
+                print("❌ Local team test failed")
                 return False
 
         except Exception as e:
-            print(f"❌ 本地团队测试异常: {e}")
+            print(f"❌ Local team test exception: {e}")
             return False
 
     async def test_streaming_responses(self):
-        """测试流式响应"""
-        print("\n=== 测试流式响应 ===")
+        """Test streaming responses"""
+        print("\n=== Testing Streaming Responses ===")
 
         try:
-            # 测试搜索代理的流式响应
-            print("测试搜索代理流式响应...")
+            # Test search agent's streaming response
+            print("Testing search agent streaming response...")
             stream_response = await self.remote_search_agent.arun(
-                "请详细介绍你的功能",
+                "Please introduce your capabilities in detail",
                 stream=True
             )
 
@@ -147,29 +147,29 @@ class A2AAgentTester:
             async for chunk in stream_response:
                 if hasattr(chunk, 'content'):
                     full_content += chunk.content
-                    print(f"  流式块: {chunk.content}")
+                    print(f"  Streaming chunk: {chunk.content}")
                 elif isinstance(chunk, str):
                     full_content += chunk
-                    print(f"  流式块: {chunk}")
+                    print(f"  Streaming chunk: {chunk}")
 
-            print(f"✓ 流式响应测试成功")
-            print(f"  完整内容长度: {len(full_content)} 字符")
+            print(f"✓ Streaming response test successful")
+            print(f"  Full content length: {len(full_content)} characters")
             return True
 
         except Exception as e:
-            print(f"❌ 流式响应测试失败: {e}")
+            print(f"❌ Streaming response test failed: {e}")
             return False
 
     async def run_all_tests(self):
-        """运行所有测试"""
+        """Run all tests"""
         print("=" * 60)
-        print("A2AAgent功能测试")
+        print("A2AAgent Function Testing")
         print("=" * 60)
 
-        # 设置代理
+        # Set up agents
         await self.setup_agents()
 
-        # 运行测试
+        # Run tests
         results = {}
 
         results['remote_search'] = await self.test_remote_search_agent()
@@ -178,19 +178,19 @@ class A2AAgentTester:
         results['local_team'] = await self.test_local_team_with_a2a_agents()
         results['streaming'] = await self.test_streaming_responses()
 
-        # 测试结果总结
+        # Test result summary
         print("\n" + "=" * 60)
-        print("A2AAgent测试结果")
+        print("A2AAgent Test Results")
         print("=" * 60)
 
         for test_name, result in results.items():
-            status = "✓ 通过" if result else "❌ 失败"
+            status = "✓ Passed" if result else "❌ Failed"
             print(f"  {test_name}: {status}")
 
         all_passed = all(results.values())
         if all_passed:
-            print("\n🎉 所有A2AAgent测试通过！")
-            print("A2AAgent功能正常，可以正常使用。")
+            print("\n🎉 All A2AAgent tests passed!")
+            print("A2AAgent functionality is normal and can be used.")
         else:
             print("\n⚠️  部分A2AAgent测试失败")
             print("需要检查A2AAgent的实现或远程服务状态。")
@@ -198,8 +198,8 @@ class A2AAgentTester:
         return all_passed
 
     async def cleanup(self):
-        """清理资源"""
-        print("\n清理A2AAgent资源...")
+        """Clean up resources"""
+        print("\nCleaning up A2AAgent resources...")
 
         if self.remote_search_agent:
             await self.remote_search_agent.close()
@@ -208,21 +208,21 @@ class A2AAgentTester:
         if self.remote_team_agent:
             await self.remote_team_agent.close()
 
-        print("✓ A2AAgent资源已清理")
+        print("✓ A2AAgent resources cleaned")
 
 
 async def main():
-    """主函数"""
+    """Main function"""
     tester = A2AAgentTester()
 
     try:
         success = await tester.run_all_tests()
         return 0 if success else 1
     except KeyboardInterrupt:
-        print("\n测试被用户中断")
+        print("\nTest interrupted by user")
         return 130
     except Exception as e:
-        print(f"\n测试过程中发生错误: {str(e)}")
+        print(f"\nError during test: {str(e)}")
         traceback.print_exc()
         return 1
     finally:
@@ -234,5 +234,5 @@ if __name__ == "__main__":
         exit_code = asyncio.run(main())
         sys.exit(exit_code)
     except Exception as e:
-        print(f"启动失败: {e}")
+        print(f"Startup failed: {e}")
         sys.exit(1)

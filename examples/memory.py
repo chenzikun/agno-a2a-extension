@@ -88,7 +88,7 @@ agent_team = Team(
 
 
 async def main():
-    result = await agent_team.arun("你是谁?",
+    result = await agent_team.arun("Who are you?",
                                    stream=True)
     async for chunk in result:
         print(chunk.content, end="", flush=True)

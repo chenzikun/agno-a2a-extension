@@ -1,8 +1,8 @@
 """
-ServerAPI HTTP接口测试
+ServerAPI HTTP Interface Testing
 
-专注于测试ServerAPI的HTTP接口，验证其功能性和协议合规性。
-假设ServerAPI已经在运行（通过server_api.py启动）。
+Focus on testing ServerAPI's HTTP interface, validating its functionality and protocol compliance.
+Assumes ServerAPI is already running (started via server_api.py).
 """
 import asyncio
 import sys
@@ -12,89 +12,89 @@ import httpx
 
 
 class ServerAPITester:
-    """ServerAPI测试器"""
+    """ServerAPI Tester"""
 
     def __init__(self, base_url: str = "http://localhost:8084"):
         self.base_url = base_url
 
     async def test_health_check_endpoint(self):
-        """测试健康检查端点"""
-        print("\n=== 测试健康检查端点 ===")
+        """Test health check endpoint"""
+        print("\n=== Testing Health Check Endpoint ===")
 
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(f"{self.base_url}/health")
 
-                print(f"状态码: {response.status_code}")
+                print(f"Status code: {response.status_code}")
                 if response.status_code == 200:
                     result = response.json()
-                    print(f"✓ 健康检查通过")
-                    print(f"  状态: {result.get('status', 'Unknown')}")
+                    print(f"✓ Health check passed")
+                    print(f"  Status: {result.get('status', 'Unknown')}")
                     return True
                 else:
-                    print(f"❌ 健康检查失败: {response.text}")
+                    print(f"❌ Health check failed: {response.text}")
                     return False
 
         except Exception as e:
-            print(f"❌ 测试健康检查端点失败: {e}")
+            print(f"❌ Failed to test health check endpoint: {e}")
             return False
 
     async def test_agent_list_endpoint(self):
-        """测试代理列表端点"""
-        print("\n=== 测试代理列表端点 ===")
+        """Test agent list endpoint"""
+        print("\n=== Testing Agent List Endpoint ===")
 
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(f"{self.base_url}/agents")
 
-                print(f"状态码: {response.status_code}")
+                print(f"Status code: {response.status_code}")
                 if response.status_code == 200:
                     agents = response.json()
-                    print(f"✓ 成功获取代理列表")
-                    print(f"  代理数量: {len(agents)}")
+                    print(f"✓ Successfully retrieved agent list")
+                    print(f"  Agent count: {len(agents)}")
                     for agent in agents:
                         print(f"    - {agent.get('name', 'Unknown')}: {agent.get('role', 'Unknown')}")
                     return True
                 else:
-                    print(f"❌ 获取代理列表失败: {response.text}")
+                    print(f"❌ Failed to get agent list: {response.text}")
                     return False
 
         except Exception as e:
-            print(f"❌ 测试代理列表端点失败: {e}")
+            print(f"❌ Failed to test agent list endpoint: {e}")
             return False
 
     async def test_team_list_endpoint(self):
-        """测试团队列表端点"""
-        print("\n=== 测试团队列表端点 ===")
+        """Test team list endpoint"""
+        print("\n=== Testing Team List Endpoint ===")
 
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(f"{self.base_url}/teams")
 
-                print(f"状态码: {response.status_code}")
+                print(f"Status code: {response.status_code}")
                 if response.status_code == 200:
                     teams = response.json()
-                    print(f"✓ 成功获取团队列表")
-                    print(f"  团队数量: {len(teams)}")
+                    print(f"✓ Successfully retrieved team list")
+                    print(f"  Team count: {len(teams)}")
                     for team in teams:
                         print(f"    - {team.get('name', 'Unknown')}: {team.get('description', 'Unknown')}")
                     return True
                 else:
-                    print(f"❌ 获取团队列表失败: {response.text}")
+                    print(f"❌ Failed to get team list: {response.text}")
                     return False
 
         except Exception as e:
-            print(f"❌ 测试团队列表端点失败: {e}")
+            print(f"❌ Failed to test team list endpoint: {e}")
             return False
 
     async def test_agent_run_endpoint(self, agent_id: str = "8e45f5a1-c032-4c6c-9913-2f3c4a8b5e01"):
-        """测试代理运行端点"""
-        print(f"\n=== 测试代理运行端点: {agent_id} ===")
+        """Test agent run endpoint"""
+        print(f"\n=== Testing Agent Run Endpoint: {agent_id} ===")
 
         try:
             async with httpx.AsyncClient() as client:
                 payload = {
-                    "message": "你好，请介绍一下你自己"
+                    "message": "Hello, please introduce yourself"
                 }
 
                 response = await client.post(
@@ -103,28 +103,28 @@ class ServerAPITester:
                     headers={"Content-Type": "application/json"}
                 )
 
-                print(f"状态码: {response.status_code}")
+                print(f"Status code: {response.status_code}")
                 if response.status_code == 200:
                     result = response.json()
-                    print(f"✓ 成功调用代理")
-                    print(f"  响应内容: {result.get('content', 'No content')[:100]}...")
+                    print(f"✓ Successfully called agent")
+                    print(f"  Response content: {result.get('content', 'No content')[:100]}...")
                     return True
                 else:
-                    print(f"❌ 调用代理失败: {response.text}")
+                    print(f"❌ Failed to call agent: {response.text}")
                     return False
 
         except Exception as e:
-            print(f"❌ 测试代理运行端点失败: {e}")
+            print(f"❌ Failed to test agent run endpoint: {e}")
             return False
 
     async def test_team_run_endpoint(self, team_id: str = "8d97f474-c0a6-4973-bd14-a954296e54be"):
-        """测试团队运行端点"""
-        print(f"\n=== 测试团队运行端点: {team_id} ===")
+        """Test team run endpoint"""
+        print(f"\n=== Testing Team Run Endpoint: {team_id} ===")
 
         try:
             async with httpx.AsyncClient() as client:
                 payload = {
-                    "message": "请团队成员协作介绍一下深圳"
+                    "message": "Please have team members collaborate to introduce Shenzhen"
                 }
 
                 response = await client.post(
@@ -133,28 +133,28 @@ class ServerAPITester:
                     headers={"Content-Type": "application/json"}
                 )
 
-                print(f"状态码: {response.status_code}")
+                print(f"Status code: {response.status_code}")
                 if response.status_code == 200:
                     result = response.json()
-                    print(f"✓ 成功调用团队")
-                    print(f"  响应内容: {result.get('content', 'No content')[:100]}...")
+                    print(f"✓ Successfully called team")
+                    print(f"  Response content: {result.get('content', 'No content')[:100]}...")
                     return True
                 else:
-                    print(f"❌ 调用团队失败: {response.text}")
+                    print(f"❌ Failed to call team: {response.text}")
                     return False
 
         except Exception as e:
-            print(f"❌ 测试团队运行端点失败: {e}")
+            print(f"❌ Failed to test team run endpoint: {e}")
             return False
 
     async def test_invalid_agent_endpoint(self):
-        """测试无效代理端点"""
-        print("\n=== 测试无效代理端点 ===")
+        """Test invalid agent endpoint"""
+        print("\n=== Testing Invalid Agent Endpoint ===")
 
         try:
             async with httpx.AsyncClient() as client:
                 payload = {
-                    "message": "测试消息"
+                    "message": "Test message"
                 }
 
                 response = await client.post(
@@ -163,26 +163,26 @@ class ServerAPITester:
                     headers={"Content-Type": "application/json"}
                 )
 
-                print(f"状态码: {response.status_code}")
+                print(f"Status code: {response.status_code}")
                 if response.status_code == 404:
-                    print(f"✓ 正确处理无效代理ID")
+                    print(f"✓ Correctly handled invalid agent ID")
                     return True
                 else:
-                    print(f"❌ 未正确处理无效代理ID: {response.text}")
+                    print(f"❌ Failed to properly handle invalid agent ID: {response.text}")
                     return False
 
         except Exception as e:
-            print(f"❌ 测试无效代理端点失败: {e}")
+            print(f"❌ Failed to test invalid agent endpoint: {e}")
             return False
 
     async def test_invalid_team_endpoint(self):
-        """测试无效团队端点"""
-        print("\n=== 测试无效团队端点 ===")
+        """Test invalid team endpoint"""
+        print("\n=== Testing Invalid Team Endpoint ===")
 
         try:
             async with httpx.AsyncClient() as client:
                 payload = {
-                    "message": "测试消息"
+                    "message": "Test message"
                 }
 
                 response = await client.post(
@@ -191,53 +191,53 @@ class ServerAPITester:
                     headers={"Content-Type": "application/json"}
                 )
 
-                print(f"状态码: {response.status_code}")
+                print(f"Status code: {response.status_code}")
                 if response.status_code == 404:
-                    print(f"✓ 正确处理无效团队ID")
+                    print(f"✓ Correctly handled invalid team ID")
                     return True
                 else:
-                    print(f"❌ 未正确处理无效团队ID: {response.text}")
+                    print(f"❌ Failed to properly handle invalid team ID: {response.text}")
                     return False
 
         except Exception as e:
-            print(f"❌ 测试无效团队端点失败: {e}")
+            print(f"❌ Failed to test invalid team endpoint: {e}")
             return False
 
     async def test_invalid_json_payload(self):
-        """测试无效JSON载荷"""
-        print("\n=== 测试无效JSON载荷 ===")
+        """Test invalid JSON payload"""
+        print("\n=== Testing Invalid JSON Payload ===")
 
         try:
             async with httpx.AsyncClient() as client:
-                # 发送无效的JSON
+                # Send invalid JSON
                 response = await client.post(
                     f"{self.base_url}/agents/8e45f5a1-c032-4c6c-9913-2f3c4a8b5e01/run",
                     data="invalid json",
                     headers={"Content-Type": "application/json"}
                 )
 
-                print(f"状态码: {response.status_code}")
+                print(f"Status code: {response.status_code}")
                 if response.status_code == 422:  # Unprocessable Entity
-                    print(f"✓ 正确处理无效JSON")
+                    print(f"✓ Correctly handled invalid JSON")
                     return True
                 else:
-                    print(f"❌ 未正确处理无效JSON: {response.text}")
+                    print(f"❌ Failed to properly handle invalid JSON: {response.text}")
                     return False
 
         except Exception as e:
-            print(f"❌ 测试无效JSON载荷失败: {e}")
+            print(f"❌ Failed to test invalid JSON payload: {e}")
             return False
 
     async def run_all_tests(self):
-        """运行所有测试"""
+        """Run all tests"""
         print("=" * 60)
-        print("ServerAPI HTTP接口测试")
+        print("ServerAPI HTTP Interface Testing")
         print("=" * 60)
-        print(f"测试目标: {self.base_url}")
-        print("注意: 请确保ServerAPI服务已启动 (python examples/server_api.py)")
+        print(f"Test target: {self.base_url}")
+        print("Note: Please ensure ServerAPI service is running (python examples/server_api.py)")
         print("=" * 60)
 
-        # 运行测试
+        # Run tests
         results = {}
 
         results['health_check'] = await self.test_health_check_endpoint()
@@ -249,38 +249,38 @@ class ServerAPITester:
         results['invalid_team'] = await self.test_invalid_team_endpoint()
         results['invalid_json'] = await self.test_invalid_json_payload()
 
-        # 测试结果总结
+        # Test result summary
         print("\n" + "=" * 60)
-        print("ServerAPI测试结果")
+        print("ServerAPI Test Results")
         print("=" * 60)
 
         for test_name, result in results.items():
-            status = "✓ 通过" if result else "❌ 失败"
+            status = "✓ Passed" if result else "❌ Failed"
             print(f"  {test_name}: {status}")
 
         all_passed = all(results.values())
         if all_passed:
-            print("\n🎉 所有ServerAPI测试通过！")
-            print("ServerAPI功能正常，接口响应正确。")
+            print("\n🎉 All ServerAPI tests passed!")
+            print("ServerAPI functionality is normal, interface responses are correct.")
         else:
-            print("\n⚠️  部分ServerAPI测试失败")
-            print("需要检查ServerAPI的实现。")
+            print("\n⚠️  Some ServerAPI tests failed")
+            print("Need to check ServerAPI implementation.")
 
         return all_passed
 
 
 async def main():
-    """主函数"""
+    """Main function"""
     tester = ServerAPITester()
 
     try:
         success = await tester.run_all_tests()
         return 0 if success else 1
     except KeyboardInterrupt:
-        print("\n测试被用户中断")
+        print("\nTest interrupted by user")
         return 130
     except Exception as e:
-        print(f"\n测试过程中发生错误: {str(e)}")
+        print(f"\nError during test: {str(e)}")
         traceback.print_exc()
         return 1
 
@@ -290,5 +290,5 @@ if __name__ == "__main__":
         exit_code = asyncio.run(main())
         sys.exit(exit_code)
     except Exception as e:
-        print(f"启动失败: {e}")
+        print(f"Startup failed: {e}")
         sys.exit(1)

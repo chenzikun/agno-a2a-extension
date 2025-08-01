@@ -3,11 +3,11 @@ import asyncio
 import sys
 import os
 
-# 确保可以正确导入项目模块
+# Ensure correct import of project modules
 sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
 
 
-# 设置OpenAI API密钥
+# Set OpenAI API key
 
 from agno.agent.agent import Agent
 from agno.models.openai import OpenAIChat
@@ -22,37 +22,37 @@ model = OpenAIChat(id="gpt-4o", api_key=api_key, base_url=base_url)
 
 
 async def main():
-    # 1. 创建基础Agent
-    print("创建基础Agent...")
+    # 1. Create basic Agent
+    print("Creating basic Agent...")
     analysis_agent = Agent(
         name="AnalysisAgent",
-        role="分析专家",
+        role="Analysis Expert",
         agent_id="analysis",
         model=model
     )
     try:
 
-        # 创建服务器
-        print("启动AgentServer...")
+        # Create server
+        print("Starting AgentServer...")
         analysis_server = AgentServer(agent=analysis_agent, port=8082)
         await analysis_server.start()
-        print("AgentServer已就绪")
+        print("AgentServer is ready")
 
-        # 保持服务运行
+        # Keep service running
         while True:
             await asyncio.sleep(1)
     except KeyboardInterrupt:
-        print("\n接收到停止信号，正在停止服务...")
+        print("\nReceived stop signal, stopping service...")
     except Exception as e:
-        print(f"发生错误: {str(e)}")
+        print(f"Error occurred: {str(e)}")
         traceback.print_exc()
     finally:
-        # Agent对象没有stop方法，应该是服务器对象的方法
+        # Agent object doesn't have stop method, should be server object's method
         if 'analysis_server' in locals():
             try:
                 await analysis_server.stop()
             except Exception as e:
-                print(f"停止服务器时出错: {str(e)}")
-        print("服务已停止")
+                print(f"Error stopping server: {str(e)}")
+        print("Service stopped")
 
 asyncio.run(main())
