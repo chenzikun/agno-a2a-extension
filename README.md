@@ -166,37 +166,6 @@ HOST=0.0.0.0
 PORT=8080
 ```
 
-### Database Migration
-
-```bash
-# Execute migration
-alembic upgrade head
-
-# Create new migration
-alembic revision --autogenerate -m "Add new table"
-```
-
-## Development
-
-### Install Development Dependencies
-
-```bash
-pip install -e ".[dev]"
-```
-
-### Run Tests
-
-```bash
-pytest tests/
-```
-
-### Code Formatting
-
-```bash
-black agno_a2a_ext/
-isort agno_a2a_ext/
-```
-
 ## License
 
 MIT License
