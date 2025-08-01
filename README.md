@@ -13,31 +13,16 @@ A powerful AI agent framework for building, managing, and deploying intelligent 
 
 ## Quick Start
 
-### Installation
 
 ```bash
-pip install agno_a2a_ext
+# set examples/.env; then quick start
+
+bash quick_start.sh
 ```
 
 ### Basic Usage
 
-#### 1. Start Single Agent Server
-
-```bash
-agno-agent --host 0.0.0.0 --port 8000 --name "My Agent"
-```
-
-#### 2. Start Team Server
-
-```bash
-agno-team --host 0.0.0.0 --port 9000 --name "My Team"
-```
-
-#### 3. Start API Server
-
-```bash
-agno-api --host 0.0.0.0 --port 8080
-```
+#### 1. Start Agent Server
 
 ### Programming Usage
 
