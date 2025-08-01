@@ -32,13 +32,13 @@ pip install -e .[dev]
 
 ```bash
 # 使用 conda
-conda create -n agents python=3.10
-conda activate agents
+conda create -n agno_a2a_ext python=3.10
+conda activate agno_a2a_ext
 
 # 或使用 venv
-python -m venv agents-env
-source agents-env/bin/activate  # Linux/Mac
-# agents-env\Scripts\activate  # Windows
+python -m venv agno_a2a_ext-env
+source agno_a2a_ext-env/bin/activate  # Linux/Mac
+# agno_a2a_ext-env\Scripts\activate  # Windows
 ```
 
 ## 验证安装
@@ -88,12 +88,12 @@ python examples/basic_agent.py
 
 ```bash
 git clone https://github.com/ai-agents/ai-agents.git
-cd ai-agents
+cd ai-agno_a2a_ext
 pip install -e .
 ```
 
 ## 卸载
 
 ```bash
-pip uninstall agents
+pip uninstall agno_a2a_ext
 ``` 

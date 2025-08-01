@@ -22,8 +22,8 @@ from agno.storage.session.agent import AgentSession
 from agno.storage.session.team import TeamSession
 from agno.team.team import Team
 
-from agents.apis.playground.operator import get_session_title_from_team_session, get_session_title
-from agents.servers.schemas import (
+from agno_a2a_ext.apis.playground.operator import get_session_title_from_team_session, get_session_title
+from agno_a2a_ext.servers.schemas import (
     AgentGetResponse,
     AgentModel,
     AgentRenameRequest,
@@ -33,7 +33,7 @@ from agents.servers.schemas import (
     TeamRenameRequest,
     TeamSessionResponse
 )
-from agents.servers.utils import process_audio, process_document, process_image, process_video, format_tools
+from agno_a2a_ext.servers.utils import process_audio, process_document, process_image, process_video, format_tools
 
 
 async def chat_response_streamer(
@@ -497,7 +497,7 @@ class ServerAPI:
             return {
                 "playground": "available",
                 "status": "available",
-                "agno_ext": len(self.agents),
+                "agent": len(self.agents),
                 "teams": len(self.teams),
                 "workflows": len(self.workflows)
             }
@@ -581,7 +581,7 @@ class ServerAPI:
                 files: Optional[List[UploadFile]] = File(None),
         ):
             """运行代理"""
-            print(f"DEBUG /playground/agno_ext/{agent_id}/runs: 收到请求，message={message}")
+            print(f"DEBUG /playground/agent/{agent_id}/runs: 收到请求，message={message}")
             agent = self.get_agent(agent_id)
             print(f"DEBUG 已找到agent: {agent.name}, 类型={type(agent).__name__}")
 
@@ -1079,7 +1079,7 @@ class ServerAPI:
         async def list_agents():
             """列出所有代理"""
             return {
-                "agno_ext": [
+                "agent": [
                     {"id": agent_id, "name": agent.name}
                     for agent_id, agent in self.agents.items()
                 ]
@@ -1289,3 +1289,67 @@ class ServerAPI:
             self._task = None
             self._app = None
             print("ServerAPI已停止")
+
+
+async def main():
+    """命令行入口点"""
+    import argparse
+    import asyncio
+    from agno.agent.agent import Agent
+    from agno.team.team import Team
+    
+    parser = argparse.ArgumentParser(description="启动AI-Agents API服务器")
+    parser.add_argument("--host", default="0.0.0.0", help="服务器主机地址")
+    parser.add_argument("--port", type=int, default=8080, help="服务器端口")
+    parser.add_argument("--title", default="AI-Agents API", help="API标题")
+    parser.add_argument("--description", default="AI-Agents API服务器", help="API描述")
+    
+    args = parser.parse_args()
+    
+    # 创建测试Agent
+    agent1 = Agent(
+        name="General Assistant",
+        role="Assistant",
+        instructions="我是一个通用助手，可以帮助用户解决各种问题。"
+    )
+    
+    agent2 = Agent(
+        name="Code Assistant",
+        role="Developer",
+        instructions="我是一个代码助手，专门帮助用户解决编程问题。"
+    )
+    
+    # 创建测试Team
+    team = Team(
+        name="Development Team",
+        description="一个开发团队，包含多个专业助手",
+        members=[agent1, agent2],
+        instructions="我们是一个开发团队，协同工作来帮助用户解决技术问题。"
+    )
+    
+    # 创建API服务器
+    api_server = ServerAPI(
+        agents=[agent1, agent2],
+        teams=[team],
+        host=args.host,
+        port=args.port,
+        title=args.title,
+        description=args.description
+    )
+    
+    try:
+        await api_server.start()
+        print(f"API服务器已启动: http://{args.host}:{args.port}")
+        print(f"API文档: http://{args.host}:{args.port}/docs")
+        
+        # 保持服务器运行
+        while True:
+            await asyncio.sleep(1)
+    except KeyboardInterrupt:
+        print("\n正在停止服务器...")
+        await api_server.stop()
+        print("服务器已停止")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

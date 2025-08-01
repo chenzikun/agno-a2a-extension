@@ -1,4 +1,4 @@
-from agents.apis.models.memory import MemoryBase
+from agno_a2a_ext.apis.models.memory import MemoryBase
 from sqlalchemy import (
     Column,
     String,
@@ -7,7 +7,7 @@ from sqlalchemy import (
     Index,
 )
 
-from agents.apis.models.storage import StorageBase
+from agno_a2a_ext.apis.models.storage import StorageBase
 
 
 class SessionMemory(MemoryBase):

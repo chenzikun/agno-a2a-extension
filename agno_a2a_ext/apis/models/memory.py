@@ -13,8 +13,8 @@ from sqlalchemy import (
     BigInteger
 )
 
-from agents.apis.models import Base
-from agents.apis.models.base import MemoryBase
+from agno_a2a_ext.apis.models import Base
+from agno_a2a_ext.apis.models.base import MemoryBase
 
 
 class UserMemory(MemoryBase):

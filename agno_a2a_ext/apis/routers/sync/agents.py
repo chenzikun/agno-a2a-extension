@@ -12,8 +12,8 @@ from agno.media import Audio, Image, Video
 from agno.media import File as FileMedia
 from agno.memory.agent import AgentMemory
 from agno.memory.v2 import Memory
-from agents.apis.factory import agent_manager
-from agents.apis.playground.operator import (
+from agno_a2a_ext.apis.factory import agent_manager
+from agno_a2a_ext.apis.playground.operator import (
     format_tools,
     get_session_title,
     get_session_title_from_team_session,
@@ -21,7 +21,7 @@ from agents.apis.playground.operator import (
     get_team_by_id,
     get_workflow_by_id,
 )
-from agents.apis.playground.schemas import (
+from agno_a2a_ext.apis.playground.schemas import (
     AgentGetResponse,
     AgentModel,
     AgentRenameRequest,
@@ -36,7 +36,7 @@ from agents.apis.playground.schemas import (
     WorkflowSessionResponse,
     WorkflowsGetResponse,
 )
-from agents.apis.playground.utils import process_audio, process_document, process_image, process_video
+from agno_a2a_ext.apis.playground.utils import process_audio, process_document, process_image, process_video
 from agno.run.response import RunEvent
 from agno.run.team import TeamRunResponse
 from agno.storage.session.agent import AgentSession
@@ -46,9 +46,9 @@ from agno.team.team import Team
 from agno.utils.log import logger
 from agno.workflow.workflow import Workflow
 
-from agents.apis.routers.sync.chat_response import chat_response_streamer
+from agno_a2a_ext.apis.routers.sync.chat_response import chat_response_streamer
 
-agents_router = APIRouter(prefix="", tags=["agno_ext"])
+agents_router = APIRouter(prefix="", tags=["agent"])
 
 def chat_response_streamer(
     agent: Agent,

@@ -9,7 +9,7 @@ from starlette.requests import Request
 
 
 
-from agents.apis.playground.settings import PlaygroundSettings
+from agno_a2a_ext.apis.playground.settings import PlaygroundSettings
 
 from agno.agent.agent import Agent
 from agno.api.playground import create_playground_endpoint
@@ -22,7 +22,7 @@ from agno.workflow.workflow import Workflow
 class Playground:
     def __init__(
         self,
-        # agno_ext: Optional[List[Agent]] = None,
+        # agent: Optional[List[Agent]] = None,
         # teams: Optional[List[Team]] = None,
         # workflows: Optional[List[Workflow]] = None,
         settings: Optional[PlaygroundSettings] = None,
@@ -32,7 +32,7 @@ class Playground:
         get_teams_from_db: Optional[Callable[[], List[Team]]] = None,
         get_workflows_from_db: Optional[Callable[[], List[Workflow]]] = None,
     ):
-        # self.agno_ext: Optional[List[Agent]] = agno_ext
+        # self.agent: Optional[List[Agent]] = agent
         # self.workflows: Optional[List[Workflow]] = workflows
         # self.teams: Optional[List[Team]] = teams
         #
@@ -42,12 +42,12 @@ class Playground:
         # self.get_workflows_from_db = get_workflows_from_db
         
         # # 如果没有提供任何初始数据和数据库获取函数，则抛出错误
-        # if not agno_ext and not workflows and not teams and not get_agents_from_db and not get_teams_from_db and not get_workflows_from_db:
-        #     raise ValueError("需要提供 agno_ext、teams、workflows 列表或者对应的数据库获取函数")
+        # if not agent and not workflows and not teams and not get_agents_from_db and not get_teams_from_db and not get_workflows_from_db:
+        #     raise ValueError("需要提供 agent、teams、workflows 列表或者对应的数据库获取函数")
 
         # # 初始化传入的对象
-        # if self.agno_ext:
-        #     self._initialize_agents(self.agno_ext)
+        # if self.agent:
+        #     self._initialize_agents(self.agent)
         #
         # if self.teams:
         #     self._initialize_teams(self.teams)

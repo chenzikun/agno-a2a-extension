@@ -1,11 +1,9 @@
-#!/usr/bin/env python3
 """
 ServerAPI HTTP接口测试
 
 专注于测试ServerAPI的HTTP接口，验证其功能性和协议合规性。
 假设ServerAPI已经在运行（通过server_api.py启动）。
 """
-
 import asyncio
 import sys
 import traceback
@@ -16,7 +14,7 @@ import httpx
 class ServerAPITester:
     """ServerAPI测试器"""
 
-    def __init__(self, base_url: str = "http://localhost:8089"):
+    def __init__(self, base_url: str = "http://localhost:8084"):
         self.base_url = base_url
 
     async def test_health_check_endpoint(self):

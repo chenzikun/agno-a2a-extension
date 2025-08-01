@@ -1,24 +1,19 @@
-# examples/a2a_integration_example.py
 import asyncio
-import sys
+import logging
 import os
-
-
-# 确保可以正确导入项目模块
-sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
+import traceback
 
 from agno.tools.searxng import Searxng
-
-# 设置OpenAI API密钥
-
-
 from agno.agent.agent import Agent
 from agno.models.openai import OpenAIChat
+from agno_a2a_ext.servers.agent import AgentServer
+from dotenv import load_dotenv
 
-from agents.servers.agent import AgentServer
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+api_key = os.environ.get("OPENAI_API_KEY")
+base_url = os.environ.get("OPENAI_API_PROXY")
 
-api_key = "sk-P0aVuPxRCfYEntCF2bC3B4E6C5Da4e37916e702eFa74C4A5"
-base_url = "http://proxy.aiapps.autel.com/v1"
+
 model = OpenAIChat(id="gpt-4o", api_key=api_key, base_url=base_url)
 
 
@@ -35,7 +30,7 @@ async def main():
     try:
         # 创建服务器
         print("启动AgentServer...")
-        search_server = AgentServer(agent=search_agent, port=8000)
+        search_server = AgentServer(agent=search_agent, port=8081)
         await search_server.start()
         print("AgentServer已就绪")
 

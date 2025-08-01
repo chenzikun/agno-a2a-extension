@@ -4,37 +4,36 @@ from uuid import uuid4
 from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from agents.apis.factory import ai_factory
 from agno.media import Audio, Image, Video
 from agno.media import File as FileMedia
 from agno.memory.v2 import Memory
-from agents.apis.playground.operator import (
+from agno_a2a_ext.apis.factory import ai_factory
+from agno_a2a_ext.apis.playground.operator import (
     get_session_title_from_team_session,
 )
-from agents.apis.playground.schemas import (
+from agno_a2a_ext.apis.playground.schemas import (
     MemoryResponse,
     TeamGetResponse,
     TeamRenameRequest,
     TeamSessionResponse,
 )
-from agents.apis.playground.utils import process_audio, process_document, process_image, process_video
+from agno_a2a_ext.apis.playground.utils import process_audio, process_document, process_image, process_video
 from agno.storage.session.team import TeamSession
 from agno.utils.log import logger
 
-from agents.apis.routers._async.chat_response import team_chat_response_streamer
-
+from agno_a2a_ext.apis.routers.sync.chat_response import team_chat_response_streamer
 
 teams_router = APIRouter(prefix="", tags=["teams"])
 
 
-@teams_router.get("/teams")
-async def get_teams():
-    teams = ai_factory.get_all_teams()
-    return [TeamGetResponse.from_team(team) for team in teams]
+@teams_router.get("", response_model=List[TeamGetResponse])
+def get_teams():
+    current_teams = ai_factory.get_all_teams()
+    return [TeamGetResponse.from_team(team) for team in current_teams]
 
 
-@teams_router.get("/teams/{team_id}")
-async def get_team(team_id: str):
+@teams_router.get("/{team_id}")
+def get_team(team_id: str):
     team = ai_factory.get_team_by_id(team_id)
     if team is None:
         raise HTTPException(status_code=404, detail="Team not found")
@@ -42,8 +41,8 @@ async def get_team(team_id: str):
     return TeamGetResponse.from_team(team)
 
 
-@teams_router.post("/teams/{team_id}/runs")
-async def create_team_run(
+@teams_router.post("/{team_id}/runs")
+def create_team_run(
         team_id: str,
         message: str = Form(...),
         stream: bool = Form(True),
@@ -53,7 +52,6 @@ async def create_team_run(
         files: Optional[List[UploadFile]] = File(None),
 ):
     logger.debug(f"Creating team run: {message} {session_id} {monitor} {user_id} {team_id} {files}")
-
     team = ai_factory.get_team_by_id(team_id)
     if team is None:
         raise HTTPException(status_code=404, detail="Team not found")
@@ -137,7 +135,7 @@ async def create_team_run(
             media_type="text/event-stream",
         )
     else:
-        run_response = await team.arun(
+        run_response = team.run(
             message=message,
             session_id=session_id,
             user_id=user_id,
@@ -150,8 +148,8 @@ async def create_team_run(
         return run_response.to_dict()
 
 
-@teams_router.get("/teams/{team_id}/sessions", response_model=List[TeamSessionResponse])
-async def get_all_team_sessions(team_id: str, user_id: Optional[str] = Query(None, min_length=1)):
+@teams_router.get("/{team_id}/sessions", response_model=List[TeamSessionResponse])
+def get_all_team_sessions(team_id: str, user_id: Optional[str] = Query(None, min_length=1)):
     team = ai_factory.get_team_by_id(team_id)
     if team is None:
         raise HTTPException(status_code=404, detail="Team not found")
@@ -179,8 +177,8 @@ async def get_all_team_sessions(team_id: str, user_id: Optional[str] = Query(Non
     return team_sessions
 
 
-@teams_router.get("/teams/{team_id}/sessions/{session_id}")
-async def get_team_session(team_id: str, session_id: str, user_id: Optional[str] = Query(None, min_length=1)):
+@teams_router.get("/{team_id}/sessions/{session_id}")
+def get_team_session(team_id: str, session_id: str, user_id: Optional[str] = Query(None, min_length=1)):
     team = ai_factory.get_team_by_id(team_id)
     if team is None:
         raise HTTPException(status_code=404, detail="Team not found")
@@ -222,8 +220,8 @@ async def get_team_session(team_id: str, session_id: str, user_id: Optional[str]
     return team_session_dict
 
 
-@teams_router.post("/teams/{team_id}/sessions/{session_id}/rename")
-async def rename_team_session(team_id: str, session_id: str, body: TeamRenameRequest):
+@teams_router.post("/{team_id}/sessions/{session_id}/rename")
+def rename_team_session(team_id: str, session_id: str, body: TeamRenameRequest):
     team = ai_factory.get_team_by_id(team_id)
     if team is None:
         raise HTTPException(status_code=404, detail="Team not found")
@@ -241,8 +239,8 @@ async def rename_team_session(team_id: str, session_id: str, body: TeamRenameReq
     raise HTTPException(status_code=404, detail="Session not found")
 
 
-@teams_router.delete("/teams/{team_id}/sessions/{session_id}")
-async def delete_team_session(team_id: str, session_id: str, user_id: Optional[str] = Query(None, min_length=1)):
+@teams_router.delete("/{team_id}/sessions/{session_id}")
+def delete_team_session(team_id: str, session_id: str, user_id: Optional[str] = Query(None, min_length=1)):
     team = ai_factory.get_team_by_id(team_id)
     if team is None:
         raise HTTPException(status_code=404, detail="Team not found")
@@ -260,11 +258,11 @@ async def delete_team_session(team_id: str, session_id: str, user_id: Optional[s
     raise HTTPException(status_code=404, detail="Session not found")
 
 
-@teams_router.get("/team/{team_id}/memories")
-async def get_team_memories(team_id: str, user_id: str = Query(..., min_length=1)):
+@teams_router.get("/{team_id}/memories")
+def get_team_memories(team_id: str, user_id: str = Query(..., min_length=1)):
     team = ai_factory.get_team_by_id(team_id)
     if team is None:
-        return JSONResponse(status_code=404, content="Teem not found.")
+        return JSONResponse(status_code=404, content="Team not found.")
 
     if team.memory is None:
         return JSONResponse(status_code=404, content="Team does not have memory enabled.")

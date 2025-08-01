@@ -12,10 +12,12 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
 from agno.agent.agent import Agent
 from agno.models.openai import OpenAIChat
 import traceback
-from agents.servers.agent import AgentServer
+from agno_a2a_ext.servers.agent import AgentServer
+from dotenv import load_dotenv
 
-api_key = "sk-P0aVuPxRCfYEntCF2bC3B4E6C5Da4e37916e702eFa74C4A5"
-base_url = "http://proxy.aiapps.autel.com/v1"
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+api_key = os.environ.get("OPENAI_API_KEY")
+base_url = os.environ.get("OPENAI_API_PROXY")
 model = OpenAIChat(id="gpt-4o", api_key=api_key, base_url=base_url)
 
 
@@ -32,7 +34,7 @@ async def main():
 
         # 创建服务器
         print("启动AgentServer...")
-        analysis_server = AgentServer(agent=analysis_agent, port=8001)
+        analysis_server = AgentServer(agent=analysis_agent, port=8082)
         await analysis_server.start()
         print("AgentServer已就绪")
 

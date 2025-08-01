@@ -7,13 +7,13 @@ from uuid import uuid4
 from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from agents.apis.factory import ai_factory
+from agno_a2a_ext.apis.factory import ai_factory
 from agno.agent.agent  import Agent, RunResponse
 from agno.media import Audio, Image, Video
 from agno.media import File as FileMedia
 from agno.memory.agent import AgentMemory
 from agno.memory.v2 import Memory
-from agents.apis.playground.operator import (
+from agno_a2a_ext.apis.playground.operator import (
     format_tools,
     get_agent_by_id,
     get_session_title,
@@ -22,7 +22,7 @@ from agents.apis.playground.operator import (
     get_team_by_id,
     get_workflow_by_id,
 )
-from agents.apis.playground.schemas import (
+from agno_a2a_ext.apis.playground.schemas import (
     AgentGetResponse,
     AgentModel,
     AgentRenameRequest,
@@ -48,7 +48,7 @@ from agno.utils.log import logger
 from agno.workflow.workflow import Workflow
 from agent_api.routers._async.chat_response import chat_response_streamer
 
-agents_router = APIRouter(prefix="", tags=["agno_ext"])
+agents_router = APIRouter(prefix="", tags=["agent"])
 
 
 @agents_router.get("/agents", response_model=List[AgentGetResponse])

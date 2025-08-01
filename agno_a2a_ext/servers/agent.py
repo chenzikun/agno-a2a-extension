@@ -6,7 +6,7 @@ from a2a.types import AgentCard
 from a2a.types import Message, Role, Part, TextPart
 from agno.agent.agent import Agent
 
-from agents.servers.base import BaseServer
+from agno_a2a_ext.servers.base import BaseServer
 
 
 class AgentExecutorWrapper(AgentExecutor):
@@ -356,3 +356,44 @@ class AgentServer(BaseServer):
             AgentExecutor: 包装了Agent的执行器
         """
         return AgentExecutorWrapper(self.agent)
+
+
+async def main():
+    """命令行入口点"""
+    import argparse
+    import asyncio
+    from agno.agent.agent import Agent
+    
+    parser = argparse.ArgumentParser(description="启动A2A Agent服务器")
+    parser.add_argument("--host", default="0.0.0.0", help="服务器主机地址")
+    parser.add_argument("--port", type=int, default=8000, help="服务器端口")
+    parser.add_argument("--name", default="Test Agent", help="Agent名称")
+    parser.add_argument("--role", default="Assistant", help="Agent角色")
+    
+    args = parser.parse_args()
+    
+    # 创建一个简单的测试Agent
+    agent = Agent(
+        name=args.name,
+        role=args.role,
+        instructions="我是一个AI助手，可以帮助用户解决问题。"
+    )
+    
+    # 创建并启动服务器
+    server = AgentServer(agent, host=args.host, port=args.port)
+    
+    try:
+        await server.start()
+        print(f"Agent服务器已启动: http://{args.host}:{args.port}")
+        
+        # 保持服务器运行
+        while True:
+            await asyncio.sleep(1)
+    except KeyboardInterrupt:
+        print("\n正在停止服务器...")
+        await server.stop()
+        print("服务器已停止")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

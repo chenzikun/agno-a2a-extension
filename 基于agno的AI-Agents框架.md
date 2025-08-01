@@ -238,7 +238,7 @@ async with httpx.AsyncClient() as httpx_client:
 **示例代码**：
 
 ```python
-from agents.agno_ext import A2AAgent
+from agno_a2a_ext.agent import A2AAgent
 
 # 创建A2A代理
 remote_agent = A2AAgent(
@@ -651,10 +651,10 @@ python examples/server_api.py
 
 ```bash
 # 构建镜像
-docker build -t ai-agents .
+docker build -t ai-agno_a2a_ext .
 
 # 运行容器
-docker run -p 8000:8000 -p 8080:8080 --env-file .env ai-agents
+docker run -p 8000:8000 -p 8080:8080 --env-file .env ai-agno_a2a_ext
 ```
 
 ## 8. 扩展开发

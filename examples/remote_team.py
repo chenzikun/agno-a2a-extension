@@ -1,28 +1,19 @@
-# examples/a2a_integration_example.py
 import asyncio
-import sys
 import os
-
-# 确保可以正确导入项目模块
-sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
-# 添加a2a-python路径
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'a2a-python', 'src')))
 
 from agno.tools.searxng import Searxng
 
-# 设置OpenAI API密钥
-# 注意：在实际使用时，请替换为您自己的API密钥，或从环境变量或配置文件中读取
-os.environ["OPENAI_API_KEY"] = "your-openai-api-key-here"  # 替换为您的API密钥
-
 from agno.agent.agent import Agent
-from agents.agno_ext.a2a.a2a_agent import A2AAgent
+from agno_a2a_ext.agent.a2a.a2a_agent import A2AAgent
 from agno.team.team import Team
 from agno.models.openai import OpenAIChat
 
-from agents.servers.team import TeamServer
+from agno_a2a_ext.servers.team import TeamServer
+from dotenv import load_dotenv
 
-api_key = "sk-P0aVuPxRCfYEntCF2bC3B4E6C5Da4e37916e702eFa74C4A5"
-base_url = "http://proxy.aiapps.autel.com/v1"
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+api_key = os.environ.get("OPENAI_API_KEY")
+base_url = os.environ.get("OPENAI_API_PROXY")
 model = OpenAIChat(id="gpt-4o", api_key=api_key, base_url=base_url)
 
 
@@ -37,8 +28,6 @@ async def main():
         model=model
     )
 
-
-
     # 初始化变量，以便在finally块中可以安全地访问
     remote_search_agent = None
     remote_analysis_agent = None
@@ -48,13 +37,13 @@ async def main():
         # 3. 创建A2AAgent连接到远程服务
         print("创建A2AAgent...")
         remote_search_agent = A2AAgent(
-            base_url="http://localhost:8000",
+            base_url="http://localhost:8081",
             name="RemoteSearchAgent",
             role="远程搜索代理"
         )
 
         remote_analysis_agent = A2AAgent(
-            base_url="http://localhost:8001",
+            base_url="http://localhost:8082",
             name="RemoteAnalysisAgent",
             role="远程分析代理"
         )
@@ -74,9 +63,8 @@ async def main():
 
         # 5. 启动TeamServer
         print("启动TeamServer...")
-        team_server = TeamServer(team=local_team, port=9000)
+        team_server = TeamServer(team=local_team, port=8083)
         await team_server.start()
-
 
         # 保持服务运行
         while True:
@@ -95,7 +83,6 @@ async def main():
             await remote_search_agent.close()
         if remote_analysis_agent:
             await remote_analysis_agent.close()
-
 
         print("所有服务已停止")
 

@@ -118,9 +118,9 @@ def get_sync_playground_router(
 ) -> APIRouter:
     playground_router = APIRouter(prefix="/playground", tags=["Playground"])
     if agents is None and workflows is None and teams is None:
-        raise ValueError("Either agno_ext, teams or workflows must be provided.")
+        raise ValueError("Either agent, teams or workflows must be provided.")
 
-    # Generate IDs if they were not explicitly set on agno_ext/teams/workflows
+    # Generate IDs if they were not explicitly set on agent/teams/workflows
     if agents:
         for agent in agents:
             if agent.agent_id is None:

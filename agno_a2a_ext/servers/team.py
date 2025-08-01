@@ -10,7 +10,7 @@ from agno.run.team import TeamRunResponse
 from agno.run.response import RunStatus
 from agno.team.team import Team
 
-from agents.servers.base import BaseServer
+from agno_a2a_ext.servers.base import BaseServer
 
 
 class TeamExecutorWrapper(AgentExecutor):
@@ -345,7 +345,7 @@ class TeamServer(BaseServer):
         """
         # 获取Team信息
         name = self.team.name or "Unknown Team"
-        description = self.team.description or "A team of agno_ext"
+        description = self.team.description or "A team of agent"
         
         # 获取成员信息
         member_skills = []
@@ -392,3 +392,59 @@ class TeamServer(BaseServer):
             AgentExecutor: 包装了Team的执行器
         """
         return TeamExecutorWrapper(self.team)
+
+
+async def main():
+    """命令行入口点"""
+    import argparse
+    import asyncio
+    from agno.agent.agent import Agent
+    from agno.team.team import Team
+    
+    parser = argparse.ArgumentParser(description="启动A2A Team服务器")
+    parser.add_argument("--host", default="0.0.0.0", help="服务器主机地址")
+    parser.add_argument("--port", type=int, default=9000, help="服务器端口")
+    parser.add_argument("--name", default="Test Team", help="Team名称")
+    parser.add_argument("--description", default="A team of agents", help="Team描述")
+    
+    args = parser.parse_args()
+    
+    # 创建测试Agent
+    agent1 = Agent(
+        name="Assistant 1",
+        role="Assistant",
+        instructions="我是第一个助手，负责回答问题。"
+    )
+    
+    agent2 = Agent(
+        name="Assistant 2", 
+        role="Assistant",
+        instructions="我是第二个助手，负责补充信息。"
+    )
+    
+    # 创建Team
+    team = Team(
+        name=args.name,
+        description=args.description,
+        members=[agent1, agent2],
+        instructions="我们是一个团队，协同工作来帮助用户。"
+    )
+    
+    # 创建并启动服务器
+    server = TeamServer(team, host=args.host, port=args.port)
+    
+    try:
+        await server.start()
+        print(f"Team服务器已启动: http://{args.host}:{args.port}")
+        
+        # 保持服务器运行
+        while True:
+            await asyncio.sleep(1)
+    except KeyboardInterrupt:
+        print("\n正在停止服务器...")
+        await server.stop()
+        print("服务器已停止")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

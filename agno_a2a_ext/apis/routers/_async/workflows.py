@@ -6,13 +6,13 @@ from uuid import uuid4
 from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from agents.apis.factory import ai_factory
+from agno_a2a_ext.apis.factory import ai_factory
 from agno.media import File as FileMedia
-from agents.apis.playground.operator import (
+from agno_a2a_ext.apis.playground.operator import (
     get_session_title,
     get_session_title_from_workflow_session,
 )
-from agents.apis.playground.schemas import (
+from agno_a2a_ext.apis.playground.schemas import (
     AgentModel,
     MemoryResponse,
     TeamGetResponse,

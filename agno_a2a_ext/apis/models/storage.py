@@ -10,8 +10,8 @@ from sqlalchemy import (
     BigInteger
 )
 
-from agents.apis.models import Base
-from agents.apis.models.base import StorageBase
+from agno_a2a_ext.apis.models import Base
+from agno_a2a_ext.apis.models.base import StorageBase
 
 
 class AgentStorage(StorageBase):  # 不再继承StorageBase，避免id冲突

@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 from agno.agent.agent import Agent
 from agno.memory import TeamMemory
@@ -9,8 +10,14 @@ from agno.tools.yfinance import YFinanceTools
 from agno.team import Team
 from agno.tools.mcp import MCPTools
 
-from agents.agno_ext.memory import MySqlMemoryDb
-from agents.agno_ext.storage.mysql import MySqlStorage
+from agno_a2a_ext.agent.memory.mysql import MySqlMemoryDb
+from agno_a2a_ext.agent.storage.mysql import MySqlStorage
+
+from dotenv import load_dotenv
+
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+api_key = os.environ.get("OPENAI_API_KEY")
+base_url = os.environ.get("OPENAI_API_PROXY")
 
 userid = "chenzikun@autel.com"
 
@@ -29,8 +36,8 @@ storage = MySqlStorage(
 )
 
 base_model_config = dict(
-    base_url="http://proxy.aiapps.autel.com/v1",
-    api_key="sk-IxG3kIKpcB7Sv7Bz38957eAa6b8449A39cA153823592A043"
+    base_url=base_url,
+    api_key=api_key
 )
 assis_config = dict(
     id="gpt-4o",
